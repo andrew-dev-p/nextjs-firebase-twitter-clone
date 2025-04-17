@@ -1,4 +1,4 @@
-import { getAuth, sendEmailVerification, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendEmailVerification, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { app } from "./config";
 
 export const auth = getAuth(app);
@@ -16,4 +16,8 @@ export const checkEmailVerification = async (): Promise<boolean> => {
   return user.emailVerified;
 };
 
-export { sendEmailVerification, createUserWithEmailAndPassword };
+export const logoutUser = async (): Promise<void> => {
+  await signOut(auth);
+};
+
+export { sendEmailVerification, createUserWithEmailAndPassword, signOut };

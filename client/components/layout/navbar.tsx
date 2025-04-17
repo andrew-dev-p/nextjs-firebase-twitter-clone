@@ -14,13 +14,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { logoutUser } from "@/firebase/auth";
 
 export function Navbar() {
   // const { setTheme } = useTheme();
   const router = useRouter();
 
   const handleLogout = async () => {
-    // await logoutUser();
+    await logoutUser();
     router.push("/login");
   };
 
@@ -94,7 +95,6 @@ export function Navbar() {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
