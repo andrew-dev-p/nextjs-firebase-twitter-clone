@@ -8,7 +8,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { signUpWithEmail } from "@/lib/auth-actions";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  auth,
+} from "@/firebase/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,11 +51,15 @@ export function SignUpForm() {
     setIsLoading(true);
     setError("");
     try {
-      await signUpWithEmail(values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      await sendEmailVerification(userCredential.user);
       router.push("/verify-email");
-    } catch (err) {
+    } catch {
       setError("Failed to create account. Please try again.");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }

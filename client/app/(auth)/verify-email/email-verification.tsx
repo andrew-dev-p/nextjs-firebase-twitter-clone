@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   resendVerificationEmail,
   checkEmailVerification,
-} from "@/lib/auth-actions";
+} from "@/firebase/auth";
 
 export function EmailVerification() {
   const router = useRouter();
@@ -37,9 +37,8 @@ export function EmailVerification() {
     try {
       setIsResendDisabled(true);
       await resendVerificationEmail();
-    } catch (err) {
+    } catch {
       setError("Failed to resend verification email. Please try again.");
-      console.error(err);
       setIsResendDisabled(false);
     }
   };
@@ -50,15 +49,14 @@ export function EmailVerification() {
       const isVerified = await checkEmailVerification();
 
       if (isVerified) {
-        router.push("/login");
+        router.push("/dashboard");
       } else {
         setError(
           "Your email is not verified yet. Please check your inbox and click the verification link."
         );
       }
-    } catch (err) {
+    } catch {
       setError("Failed to check verification status. Please try again.");
-      console.error(err);
     } finally {
       setIsChecking(false);
     }

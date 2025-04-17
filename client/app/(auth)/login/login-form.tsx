@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { loginWithEmail } from "@/lib/auth-actions";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,11 +48,10 @@ export function LoginForm() {
     setIsLoading(true);
     setError("");
     try {
-      await loginWithEmail(values.email, values.password);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push("/dashboard");
-    } catch (err) {
+    } catch {
       setError("Invalid email or password");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
