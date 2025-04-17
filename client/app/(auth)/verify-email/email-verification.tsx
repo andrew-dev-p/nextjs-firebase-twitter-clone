@@ -49,7 +49,7 @@ export function EmailVerification() {
       const isVerified = await checkEmailVerification();
 
       if (isVerified) {
-        router.push("/dashboard");
+        router.push("/feed");
       } else {
         setError(
           "Your email is not verified yet. Please check your inbox and click the verification link."

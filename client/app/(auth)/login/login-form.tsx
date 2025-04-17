@@ -49,7 +49,7 @@ export function LoginForm() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      router.push("/dashboard");
+      router.push("/feed");
     } catch {
       setError("Invalid email or password");
     } finally {
