@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useIsLoggedIn } from "@/hooks/use-is-logged-in";
+import { ToastContainer } from "react-toastify";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -15,5 +16,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     }
   }, [isLoggedIn, router]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <ToastContainer />
+      {children}
+    </>
+  );
 }

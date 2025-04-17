@@ -22,6 +22,7 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
+import { toast } from "react-toastify";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -49,7 +50,14 @@ export function LoginForm() {
     setIsLoading(true);
     setError("");
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      await toast.promise(
+        signInWithEmailAndPassword(auth, values.email, values.password),
+        {
+          pending: "Authenticating...",
+          success: "Logged in successfully",
+          error: "Invalid email or password",
+        }
+      );
       router.push("/feed");
     } catch {
       setError("Invalid email or password");
@@ -62,7 +70,11 @@ export function LoginForm() {
     setIsLoading(true);
     setError("");
     try {
-      await signInWithGoogle();
+      await toast.promise(signInWithGoogle(), {
+        pending: "Authenticating...",
+        success: "Logged in with Google",
+        error: "Google authentication failed",
+      });
       router.push("/feed");
     } catch {
       setError("Google authentication failed");

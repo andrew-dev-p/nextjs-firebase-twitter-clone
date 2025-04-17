@@ -25,6 +25,7 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
+import { toast } from "react-toastify";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -52,15 +53,17 @@ export function SignUpForm() {
     setIsLoading(true);
     setError("");
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
+      const userCredential = await toast.promise(
+        createUserWithEmailAndPassword(auth, values.email, values.password),
+        {
+          pending: "Creating account...",
+          success: "Account created successfully",
+          error: "Failed to create account. Please try again.",
+        }
       );
       await sendEmailVerification(userCredential.user);
       router.push("/verify-email");
     } catch {
-      setError("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +73,11 @@ export function SignUpForm() {
     setIsLoading(true);
     setError("");
     try {
-      await signInWithGoogle();
+      await toast.promise(signInWithGoogle(), {
+        pending: "Authenticating...",
+        success: "Logged in with Google",
+        error: "Google authentication failed",
+      });
       router.push("/feed");
     } catch {
       setError("Google authentication failed");
