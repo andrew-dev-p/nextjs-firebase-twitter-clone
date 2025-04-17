@@ -12,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   auth,
+  signInWithGoogle,
 } from "@/firebase/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -60,6 +61,19 @@ export function SignUpForm() {
       router.push("/verify-email");
     } catch {
       setError("Failed to create account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      await signInWithGoogle();
+      router.push("/feed");
+    } catch {
+      setError("Google authentication failed");
     } finally {
       setIsLoading(false);
     }
@@ -119,11 +133,10 @@ export function SignUpForm() {
       </Form>
       <Separator />
       <Button
+        type="button"
         variant="outline"
+        onClick={handleGoogleSignup}
         className="w-full"
-        onClick={() => {
-          /* Google OAuth logic */
-        }}
         disabled={isLoading}
       >
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

@@ -30,7 +30,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className="aspect-square rounded-md bg-muted-foreground/20"
+                  className="aspect-square rounded-md bg-muted-foreground/25 animate-pulse"
                   aria-hidden="true"
                   style={{
                     opacity: Math.random(),

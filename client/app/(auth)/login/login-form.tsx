@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/auth";
+import { signInWithGoogle } from "@/firebase/auth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,6 +53,19 @@ export function LoginForm() {
       router.push("/feed");
     } catch {
       setError("Invalid email or password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      await signInWithGoogle();
+      router.push("/feed");
+    } catch {
+      setError("Google authentication failed");
     } finally {
       setIsLoading(false);
     }
@@ -119,9 +133,10 @@ export function LoginForm() {
       </Form>
       <Separator />
       <Button
+        type="button"
         variant="outline"
+        onClick={handleGoogleLogin}
         className="w-full"
-        onClick={() => {}}
         disabled={isLoading}
       >
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -143,7 +158,7 @@ export function LoginForm() {
           />
           <path d="M1 1h22v22H1z" fill="none" />
         </svg>
-        Log in with Google
+        Sign in with Google
       </Button>
       <div className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
