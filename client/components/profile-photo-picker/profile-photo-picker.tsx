@@ -29,9 +29,13 @@ import { useAvatarGenerator } from "./avatar-generator";
 
 interface ProfilePhotoPickerProps {
   onPhotoSelect: (photoUrl: string | null) => void;
+  selectedPhoto?: string | null;
 }
 
-export function ProfilePhotoPicker({ onPhotoSelect }: ProfilePhotoPickerProps) {
+export function ProfilePhotoPicker({
+  onPhotoSelect,
+  selectedPhoto,
+}: ProfilePhotoPickerProps) {
   const {
     canvasRef,
     bgColor,
@@ -47,7 +51,9 @@ export function ProfilePhotoPicker({ onPhotoSelect }: ProfilePhotoPickerProps) {
     generateAvatar,
   } = useAvatarGenerator();
 
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(
+    selectedPhoto ?? null
+  );
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +102,13 @@ export function ProfilePhotoPicker({ onPhotoSelect }: ProfilePhotoPickerProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgColor, fgColor, pattern, complexity, activeTab]);
+
+  useEffect(() => {
+    if (selectedPhoto !== undefined && selectedPhoto !== photoUrl) {
+      setPhotoUrl(selectedPhoto);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPhoto]);
 
   return (
     <div className="flex flex-col items-center">

@@ -1,4 +1,4 @@
-import { getAuth, sendEmailVerification, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, sendEmailVerification, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, updateEmail } from "firebase/auth";
 import { app } from "./config";
 
 export const auth = getAuth(app);
@@ -25,5 +25,11 @@ export const googleProvider = new GoogleAuthProvider();
 export const signInWithGoogle = async () => {
   return signInWithPopup(auth, googleProvider);
 };
+
+export async function updateUserEmail(newEmail: string) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in.");
+  await updateEmail(user, newEmail);
+}
 
 export { sendEmailVerification, createUserWithEmailAndPassword, signOut };

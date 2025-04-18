@@ -13,30 +13,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { logoutUser } from "@/firebase/auth";
-import { useEffect, useState } from "react";
-import { getUserFromDb } from "@/firebase/db";
-import { auth } from "@/firebase/auth";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { Button } from "../ui/button";
 import { LogOut, Moon, Sun, User } from "lucide-react";
-import { UserEntity } from "@/types/entities";
 
 export function Navbar() {
   // const { setTheme } = useTheme();
   const router = useRouter();
 
-  const [userInfo, setUserInfo] = useState<UserEntity | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const dbUser = await getUserFromDb(user.uid);
-        setUserInfo(dbUser);
-      } else {
-        setUserInfo(null);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  const userInfo = useCurrentUser();
 
   const handleLogout = async () => {
     await logoutUser();
