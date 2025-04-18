@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { uploadFileAndGetUrl } from "@/firebase/storage";
 
 import { COLORS } from "./constants";
 import { PATTERNS } from "./patterns";
@@ -51,20 +52,40 @@ export function ProfilePhotoPicker({ onPhotoSelect }: ProfilePhotoPickerProps) {
   const [activeTab, setActiveTab] = useState("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
+      const storagePath = `profile-photos/${crypto.randomUUID()}-${file.name}`;
+      const url = await uploadFileAndGetUrl(storagePath, file);
+      console.log(url);
+
       setPhotoUrl(url);
       onPhotoSelect(url);
     }
   };
 
-  const handleAvatarSelect = () => {
+  function dataURLtoBlob(dataurl: string): Blob {
+    const arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)?.[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+
+  const handleAvatarSelect = async () => {
     const avatarUrl = generateAvatar();
     if (avatarUrl) {
-      setPhotoUrl(avatarUrl);
-      onPhotoSelect(avatarUrl);
+      const blob = dataURLtoBlob(avatarUrl);
+      const storagePath = `profile-photos/generated-${crypto.randomUUID()}.png`;
+      const url = await uploadFileAndGetUrl(storagePath, blob);
+      setPhotoUrl(url);
+      onPhotoSelect(url);
       setOpen(false);
     }
   };
