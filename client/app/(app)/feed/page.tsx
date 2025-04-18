@@ -9,13 +9,43 @@ import { PostCard } from "@/components/post/post-card";
 import { motion } from "framer-motion";
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostEntity[]>([
+    {
+      id: "post_001",
+      userId: "user_123",
+      title:
+        "Just finished reading 'The 48 Laws of Power' — it's wild how much psychology is behind influence. Law 3 really hit me: conceal your intentions.",
+      description:
+        "Just finished reading 'The 48 Laws of Power' — it's wild how much psychology is behind influence. Law 3 really hit me: conceal your intentions.",
+      photoUrl:
+        "https://firebasestorage.googleapis.com/v0/b/twitteritto-bandito.firebasestorage.app/o/profile-photos%2Ff3c4184c-cb68-46b7-a920-fb67fbc52dc4-logo.ico?alt=media&token=9756697b-a0ef-425c-a820-bace13436c9f",
+      createdAt: "2025-04-18T10:32:00Z",
+      likes: ["user_234", "user_345", "user_456"],
+      dislikes: ["user_567"],
+      comments: [
+        {
+          id: "comment_001",
+          userId: "user_234",
+          content:
+            "That one changed my perspective too. It's scary how relevant it is in daily life.",
+          createdAt: "2025-04-18T11:00:00Z",
+        },
+        {
+          id: "comment_002",
+          userId: "user_678",
+          content:
+            "I prefer Law 6 — 'Court attention at all cost.' Makes sense in today’s world.",
+          createdAt: "2025-04-18T11:10:00Z",
+        },
+      ],
+      commentsCount: 2,
+    },
+  ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreatePost = (
     newPost: Pick<PostEntity, "title" | "description" | "photoUrl">
   ) => {
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
     setIsModalOpen(false);
   };
 

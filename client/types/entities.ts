@@ -12,10 +12,10 @@ export interface PostEntity {
   title: string;
   description?: string;
   photoUrl?: string;
-  likes: string[];
-  dislikes: string[];
+  likes?: string[];
+  dislikes?: string[];
   commentsCount: number;
-  comments: CommentEntity[];
+  comments?: CommentEntity[];
   createdAt: string;
 }
 
@@ -23,7 +23,7 @@ export interface CommentEntity {
   id: string;
   userId: string;
   content: string;
-  replies: CommentReplyEntity[];
+  replies?: CommentReplyEntity[];
   createdAt: string;
 }
 

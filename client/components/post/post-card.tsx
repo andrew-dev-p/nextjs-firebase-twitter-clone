@@ -27,10 +27,10 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, isPreview = false }: PostCardProps) {
-  const initialVotes = post.likes.length - post.dislikes.length;
+  const initialVotes = (post.likes?.length || 0) - (post.dislikes?.length || 0);
   const [voteStatus, setVoteStatus] = useState<VoteDirection | null>(null);
   const [votes, setVotes] = useState(initialVotes);
-  const [isCommenting, setIsCommenting] = useState(false);
+  const [isViewingComments, setIsViewingComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<CommentEntity[]>(
     post.comments || []
@@ -44,8 +44,9 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
       const previousVote =
         voteStatus === null ? 0 : voteStatus === VoteDirection.Up ? 1 : -1;
       const newVote = direction === VoteDirection.Up ? 1 : -1;
+      const newTotalVote = initialVotes + newVote - previousVote;
       setVoteStatus(direction);
-      setVotes(initialVotes + newVote - previousVote);
+      setVotes(newTotalVote);
     }
   };
 
@@ -62,7 +63,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
 
     setComments([...comments, newComment]);
     setCommentText("");
-    setIsCommenting(false);
+    setIsViewingComments(false);
   };
 
   const formattedDate = formatDistanceToNow(new Date(post.createdAt), {
@@ -111,7 +112,9 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                   variant="ghost"
                   size="icon"
                   className={`${
-                    voteStatus === VoteDirection.Up ? "text-green-500" : ""
+                    voteStatus === VoteDirection.Up
+                      ? "scale-105 text-green-500 hover:text-green-500 hover:-translate-y-1 hover:pb-1"
+                      : ""
                   }`}
                   onClick={() => handleVote(VoteDirection.Up)}
                 >
@@ -124,7 +127,9 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                   variant="ghost"
                   size="icon"
                   className={`${
-                    voteStatus === VoteDirection.Down ? "text-red-500" : ""
+                    voteStatus === VoteDirection.Down
+                      ? "scale-105 text-red-500 hover:text-red-500 hover:translate-y-1 hover:pt-1"
+                      : ""
                   }`}
                   onClick={() => handleVote(VoteDirection.Down)}
                 >
@@ -136,51 +141,56 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
               variant="ghost"
               size="sm"
               className="flex items-center gap-1"
-              onClick={() => setIsCommenting(!isCommenting)}
+              onClick={() => setIsViewingComments(!isViewingComments)}
             >
               <MessageSquare className="h-4 w-4" />
               <span>{comments.length} Comments</span>
             </Button>
           </div>
-          {isCommenting && (
-            <div className="mt-4 w-full">
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Write a comment..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  className="min-h-[80px]"
-                />
-                <Button
-                  size="icon"
-                  onClick={handleAddComment}
-                  disabled={!commentText.trim()}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-          {comments.length > 0 && (
-            <div className="mt-4 w-full space-y-4">
-              {comments.map((comment) => (
-                <div key={comment.id} className="border-t pt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={"/placeholder.svg"} alt={"Anonymous"} />
-                      <AvatarFallback>A</AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">Anonymous</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(comment.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </div>
-                  <p className="text-sm pl-8">{comment.content}</p>
+          {isViewingComments && (
+            <>
+              <div className="mt-4 w-full">
+                <div className="flex gap-2">
+                  <Textarea
+                    placeholder="Write a comment..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    className="min-h-[80px]"
+                  />
+                  <Button
+                    size="icon"
+                    onClick={handleAddComment}
+                    disabled={!commentText.trim()}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
                 </div>
-              ))}
-            </div>
+              </div>
+              {comments.length > 0 && (
+                <div className="mt-4 w-full space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="border-t pt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={"/placeholder.svg"}
+                            alt={"Anonymous"}
+                          />
+                          <AvatarFallback>A</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">Anonymous</span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(comment.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm pl-8">{comment.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </CardFooter>
       )}
