@@ -250,8 +250,8 @@ export function CreatePostModal({
           </TabsContent>
           <TabsContent value={CreatePostTab.Preview}>
             <div className="rounded-lg border p-4">
-              <div className="text-center mb-2 font-bold text-lg bg-gradient-to-r from-blue-500 to-pink-300 bg-clip-text text-transparent flex justify-center gap-0.5">
-                {"Looking good!".split("").map((char, i) => (
+              <div className="text-center mb-2 font-bold text-lg bg-gradient-to-r from-blue-700 to-blue-300 bg-clip-text text-transparent flex justify-center gap-0.5">
+                {"Looking good already!".split("").map((char, i) => (
                   <motion.span
                     key={i}
                     initial={{ y: 0 }}

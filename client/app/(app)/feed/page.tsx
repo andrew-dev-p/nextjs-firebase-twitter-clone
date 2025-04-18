@@ -6,6 +6,7 @@ import { PlusCircle } from "lucide-react";
 import { PostEntity } from "@/types/entities";
 import { CreatePostModal } from "./create-post-modal";
 import { PostCard } from "@/components/post/post-card";
+import { motion } from "framer-motion";
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -23,13 +24,38 @@ export default function FeedPage() {
       <div className="container mx-auto p-4 pt-20">
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Feed</h1>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2"
+          <motion.div
+            className="relative inline-block"
+            initial={{}}
+            animate={{}}
+            whileHover={{ scale: 1.08 }}
           >
-            <PlusCircle className="h-4 w-4" />
-            Create Post
-          </Button>
+            <motion.div
+              className="absolute inset-0 rounded-full z-0"
+              style={{
+                boxShadow: "0 0 0 0 rgba(29,155,209,0.6)",
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 0 0 rgba(29,155,209,0.6)",
+                  "0 0 8px 4px rgba(29,155,209,0.8)",
+                ],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut",
+              }}
+            />
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="relative z-10 flex items-center gap-2"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Create Post
+            </Button>
+          </motion.div>
         </div>
 
         <CreatePostModal
