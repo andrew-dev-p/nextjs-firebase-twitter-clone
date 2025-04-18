@@ -14,6 +14,7 @@ import {
   auth,
   signInWithGoogle,
 } from "@/firebase/auth";
+import { createUserInDb } from "@/firebase/db";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,12 +27,20 @@ import {
   FormField,
 } from "@/components/ui/form";
 import { toast } from "react-toastify";
+import { ProfilePhotoPicker } from "@/components/profile-photo-picker/profile-photo-picker";
 
 const signUpSchema = z.object({
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters" }),
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" }),
+  profilePhoto: z
+    .string()
+    .url({ message: "Profile photo is required" })
+    .optional(),
 });
 
 type SignUpSchema = z.infer<typeof signUpSchema>;
@@ -44,8 +53,10 @@ export function SignUpForm() {
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
+      profilePhoto: undefined,
     },
   });
 
@@ -61,9 +72,16 @@ export function SignUpForm() {
           error: "Failed to create account. Please try again.",
         }
       );
+      await createUserInDb({
+        uid: userCredential.user.uid,
+        username: values.username,
+        email: values.email,
+        profilePhotoUrl: values.profilePhoto || "",
+      });
       await sendEmailVerification(userCredential.user);
       router.push("/verify-email");
     } catch {
+      setError("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -73,11 +91,19 @@ export function SignUpForm() {
     setIsLoading(true);
     setError("");
     try {
-      await toast.promise(signInWithGoogle(), {
+      const googleResult = await toast.promise(signInWithGoogle(), {
         pending: "Authenticating...",
         success: "Logged in with Google",
         error: "Google authentication failed",
       });
+      if (googleResult?.user) {
+        await createUserInDb({
+          uid: googleResult.user.uid,
+          username: googleResult.user.displayName || "",
+          email: googleResult.user.email || "",
+          profilePhotoUrl: googleResult.user.photoURL || "",
+        });
+      }
       router.push("/feed");
     } catch {
       setError("Google authentication failed");
@@ -95,6 +121,37 @@ export function SignUpForm() {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="profilePhoto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Profile Photo</FormLabel>
+                <ProfilePhotoPicker
+                  onPhotoSelect={(url) => field.onChange(url)}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    id="username"
+                    autoComplete="username"
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
