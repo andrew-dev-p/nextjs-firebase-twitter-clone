@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 // import { useTheme } from "next-themes";
-import { LogOut, Moon, Sun, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +13,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { logoutUser } from "@/firebase/auth";
+import { useEffect, useState } from "react";
+import { getUserFromDb } from "@/firebase/db";
+import { auth } from "@/firebase/auth";
+import { Button } from "../ui/button";
+import { LogOut, Moon, Sun, User } from "lucide-react";
+import { UserEntity } from "@/types/entities";
 
 export function Navbar() {
   // const { setTheme } = useTheme();
   const router = useRouter();
+
+  const [userInfo, setUserInfo] = useState<UserEntity | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const dbUser = await getUserFromDb(user.uid);
+        setUserInfo(dbUser);
+      } else {
+        setUserInfo(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -74,17 +92,19 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" alt="User" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarImage src={userInfo?.profilePhotoUrl} alt="User" />
+                  <AvatarFallback>
+                    {userInfo?.username?.[0].toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">User Name</p>
+                  <p className="font-medium">{userInfo?.username}</p>
                   <p className="text-xs text-muted-foreground">
-                    user@example.com
+                    {userInfo?.email}
                   </p>
                 </div>
               </div>
