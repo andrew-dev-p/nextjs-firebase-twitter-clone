@@ -22,6 +22,7 @@ export default function FeedPage() {
       createdAt: "2025-04-18T10:32:00Z",
       likes: ["user_234", "user_345", "user_456"],
       dislikes: ["user_567"],
+      commentsCount: 2,
       comments: [
         {
           id: "comment_001",
@@ -29,6 +30,22 @@ export default function FeedPage() {
           content:
             "That one changed my perspective too. It's scary how relevant it is in daily life.",
           createdAt: "2025-04-18T11:00:00Z",
+          replies: [
+            {
+              id: "reply_001",
+              userId: "user_123",
+              content:
+                "Exactly. Makes you think twice before trusting anyone blindly.",
+              createdAt: "2025-04-18T11:05:00Z",
+            },
+            {
+              id: "reply_002",
+              userId: "user_345",
+              content:
+                "Law 3 is lowkey underrated. So many people show their hand too early.",
+              createdAt: "2025-04-18T11:07:00Z",
+            },
+          ],
         },
         {
           id: "comment_002",
@@ -36,9 +53,22 @@ export default function FeedPage() {
           content:
             "I prefer Law 6 — 'Court attention at all cost.' Makes sense in today’s world.",
           createdAt: "2025-04-18T11:10:00Z",
+          replies: [
+            {
+              id: "reply_003",
+              userId: "user_234",
+              content: "That one feels tailor-made for social media.",
+              createdAt: "2025-04-18T11:12:00Z",
+            },
+            {
+              id: "reply_004",
+              userId: "user_123",
+              content: "Right? Visibility is power now.",
+              createdAt: "2025-04-18T11:14:00Z",
+            },
+          ],
         },
       ],
-      commentsCount: 2,
     },
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,7 +124,7 @@ export default function FeedPage() {
           onCreatePost={handleCreatePost}
         />
 
-        <div className="space-y-6">
+        <div className="space-y-6 flex justify-center">
           {posts.length === 0 ? (
             <div className="rounded-lg border p-8 text-center">
               <h2 className="text-xl font-semibold mb-2">No posts yet</h2>

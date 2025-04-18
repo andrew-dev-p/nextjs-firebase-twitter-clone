@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowBigDown, ArrowBigUp, MessageSquare, Send } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { PostEntity, CommentEntity } from "@/types/entities";
@@ -44,7 +44,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
       const previousVote =
         voteStatus === null ? 0 : voteStatus === VoteDirection.Up ? 1 : -1;
       const newVote = direction === VoteDirection.Up ? 1 : -1;
-      const newTotalVote = initialVotes + newVote - previousVote;
+      const newTotalVote = votes + newVote - previousVote;
       setVoteStatus(direction);
       setVotes(newTotalVote);
     }
@@ -71,7 +71,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
   });
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden max-w-xl">
       {post.photoUrl && (
         <div className="w-full h-64 overflow-hidden p-2 rounded-lg">
           <Image
@@ -121,7 +121,9 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                   <ArrowBigUp className="h-5 w-5" />
                 </Button>
               </motion.div>
-              <span className="w-6 text-center font-medium">{votes}</span>
+              <span className="w-6 text-center font-semibold mb-0.5">
+                {votes}
+              </span>
               <motion.div whileTap={{ scale: 0.9 }}>
                 <Button
                   variant="ghost"
@@ -147,51 +149,91 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
               <span>{comments.length} Comments</span>
             </Button>
           </div>
-          {isViewingComments && (
-            <>
-              <div className="mt-4 w-full">
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder="Write a comment..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    className="min-h-[80px]"
-                  />
-                  <Button
-                    size="icon"
-                    onClick={handleAddComment}
-                    disabled={!commentText.trim()}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+          <AnimatePresence>
+            {isViewingComments && (
+              <motion.div
+                key="comments-section"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 24 }}
+                transition={{ duration: 0.3, type: "spring", bounce: 0.2 }}
+              >
+                <div className="mt-4 w-full">
+                  <div className="flex gap-2">
+                    <Textarea
+                      placeholder="Write a comment..."
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      className="min-h-[80px]"
+                    />
+                    <Button
+                      size="icon"
+                      onClick={handleAddComment}
+                      disabled={!commentText.trim()}
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              {comments.length > 0 && (
-                <div className="mt-4 w-full space-y-4">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="border-t pt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={"/placeholder.svg"}
-                            alt={"Anonymous"}
-                          />
-                          <AvatarFallback>A</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">Anonymous</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(comment.createdAt), {
-                            addSuffix: true,
-                          })}
-                        </span>
+                {comments.length > 0 && (
+                  <div className="mt-4 w-full space-y-4">
+                    {comments.map((comment) => (
+                      <div key={comment.id} className="border-t pt-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage
+                              src={"/placeholder.svg"}
+                              alt={"Anonymous"}
+                            />
+                            <AvatarFallback>A</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">Anonymous</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(comment.createdAt), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm pl-8">{comment.content}</p>
+                        {comment.replies && comment.replies.length > 0 && (
+                          <div className="ml-10 mt-2 space-y-2 border-l border-muted-foreground/20 pl-4">
+                            {comment.replies.map((reply) => (
+                              <div
+                                key={reply.id}
+                                className="flex items-start gap-2"
+                              >
+                                <Avatar className="h-5 w-5 mt-1">
+                                  <AvatarImage
+                                    src={"/placeholder.svg"}
+                                    alt={"Anonymous"}
+                                  />
+                                  <AvatarFallback>A</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <span className="font-medium text-xs">
+                                    Anonymous
+                                  </span>
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    {formatDistanceToNow(
+                                      new Date(reply.createdAt),
+                                      { addSuffix: true }
+                                    )}
+                                  </span>
+                                  <div className="text-xs pl-7">
+                                    {reply.content}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm pl-8">{comment.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardFooter>
       )}
     </Card>

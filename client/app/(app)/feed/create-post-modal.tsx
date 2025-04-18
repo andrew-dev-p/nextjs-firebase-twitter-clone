@@ -263,10 +263,10 @@ export function CreatePostModal({
                   <motion.span
                     key={i}
                     initial={{ y: 0 }}
-                    animate={{ y: [0, -1.5, 0] }}
+                    animate={{ y: [0, -1, 0] }}
                     transition={{
-                      delay: i * 0.08,
-                      duration: 0.6,
+                      delay: i * 0.1,
+                      duration: 0.75,
                       repeat: Infinity,
                       repeatType: "loop",
                       ease: "easeInOut",
