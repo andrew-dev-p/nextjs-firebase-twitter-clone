@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -105,10 +106,16 @@ export function CreatePostModal({
     setUploading(true);
     let uploadedPhotoUrl = values.photoUrl;
     if (imageFile) {
-      const storagePath = `post-photos/${crypto.randomUUID()}-${
-        imageFile.name
-      }`;
-      uploadedPhotoUrl = await uploadFileAndGetUrl(storagePath, imageFile);
+      try {
+        const storagePath = `post-photos/${crypto.randomUUID()}-${
+          imageFile.name
+        }`;
+        uploadedPhotoUrl = await uploadFileAndGetUrl(storagePath, imageFile);
+      } catch {
+        toast.error("Failed to upload image. Please try again.");
+        setUploading(false);
+        return;
+      }
     }
     setUploading(false);
     onCreatePost({
@@ -116,6 +123,7 @@ export function CreatePostModal({
       description: values.description,
       photoUrl: uploadedPhotoUrl,
     });
+    toast.success("Post created successfully");
     form.reset();
     setImageUrl(undefined);
     setImageFile(undefined);
