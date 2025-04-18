@@ -75,7 +75,7 @@ export function ProfileForm() {
           profilePhotoUrl: values.profilePhoto,
         });
       }
-      toast("Profile updated successfully");
+      toast.success("Profile updated successfully");
     } catch (err) {
       const errorMsg =
         err instanceof Error
