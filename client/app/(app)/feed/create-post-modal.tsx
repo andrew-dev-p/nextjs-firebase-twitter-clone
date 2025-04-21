@@ -36,9 +36,15 @@ import { toast } from "react-toastify";
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreatePost: (
-    post: Pick<PostEntity, "title" | "description" | "photoUrl">
-  ) => void;
+  onCreatePost: ({
+    title,
+    description,
+    photoUrl,
+  }: {
+    title: string;
+    description: string;
+    photoUrl?: string;
+  }) => void;
 }
 
 export enum CreatePostTab {
@@ -208,7 +214,7 @@ export function CreatePostModal({
                           {imageUrl ? (
                             <div className="relative rounded-md overflow-hidden">
                               <Image
-                                src={imageUrl || "/placeholder.svg"}
+                                src={imageUrl}
                                 alt="Post preview"
                                 className="w-full h-48 object-cover"
                                 width={480}

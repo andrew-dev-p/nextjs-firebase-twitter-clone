@@ -10,10 +10,7 @@ export class PostsService {
 
   async create(createPostDto: CreatePostDto): Promise<PostEntity> {
     const post: PostEntity = {
-      userId: createPostDto.userId,
-      title: createPostDto.title,
-      description: createPostDto.description,
-      photoUrl: createPostDto.photoUrl,
+      ...createPostDto,
       likes: [],
       likesCount: 0,
       dislikes: [],

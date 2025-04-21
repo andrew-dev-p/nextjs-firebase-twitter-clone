@@ -1,0 +1,66 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axiosClient from "../lib/axios-client";
+import { PostEntity } from "../types/entities";
+import { APIRoute, QueryKey } from "@/lib/constants";
+
+const createPost = async (
+  post: Omit<
+    PostEntity,
+    | "id"
+    | "likesCount"
+    | "dislikesCount"
+    | "commentsCount"
+    | "likes"
+    | "dislikes"
+    | "createdAt"
+    | "comments"
+  >
+) => {
+  const res = await axiosClient.post<PostEntity>(APIRoute.POSTS, post);
+  return res.data;
+};
+
+const updatePost = async ({
+  id,
+  update,
+}: {
+  id: string;
+  update: Partial<PostEntity>;
+}) => {
+  const res = await axiosClient.patch<PostEntity>(
+    APIRoute.POST.replace(":id", id),
+    update
+  );
+  return res.data;
+};
+
+const deletePost = async (id: string) => {
+  const res = await axiosClient.delete<{ deleted: boolean }>(
+    APIRoute.POST.replace(":id", id)
+  );
+  return res.data;
+};
+
+export const useMutatePosts = () => {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: create } = useMutation({
+    mutationFn: createPost,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+  });
+
+  const { mutateAsync: update } = useMutation({
+    mutationFn: updatePost,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+  });
+
+  const { mutateAsync: remove } = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+  });
+
+  return { create, update, remove };
+};

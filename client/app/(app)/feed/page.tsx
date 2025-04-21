@@ -3,80 +3,36 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { PostEntity } from "@/types/entities";
 import { CreatePostModal } from "./create-post-modal";
 import { PostCard } from "@/components/post/post-card";
 import { motion } from "framer-motion";
+import { useQueryPosts } from "@/hooks/use-query-posts";
+import { useMutatePosts } from "@/hooks/use-mutate-posts";
+import { auth } from "@/firebase/auth";
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<PostEntity[]>([
-    {
-      id: "post_001",
-      userId: "user_123",
-      title:
-        "Just finished reading 'The 48 Laws of Power' — it's wild how much psychology is behind influence. Law 3 really hit me: conceal your intentions.",
-      description:
-        "Just finished reading 'The 48 Laws of Power' — it's wild how much psychology is behind influence. Law 3 really hit me: conceal your intentions.",
-      photoUrl:
-        "https://firebasestorage.googleapis.com/v0/b/twitteritto-bandito.firebasestorage.app/o/profile-photos%2Ff3c4184c-cb68-46b7-a920-fb67fbc52dc4-logo.ico?alt=media&token=9756697b-a0ef-425c-a820-bace13436c9f",
-      createdAt: "2025-04-18T10:32:00Z",
-      likes: ["user_234", "user_345", "user_456"],
-      dislikes: ["user_567"],
-      commentsCount: 2,
-      comments: [
-        {
-          id: "comment_001",
-          userId: "user_234",
-          content:
-            "That one changed my perspective too. It's scary how relevant it is in daily life.",
-          createdAt: "2025-04-18T11:00:00Z",
-          replies: [
-            {
-              id: "reply_001",
-              userId: "user_123",
-              content:
-                "Exactly. Makes you think twice before trusting anyone blindly.",
-              createdAt: "2025-04-18T11:05:00Z",
-            },
-            {
-              id: "reply_002",
-              userId: "user_345",
-              content:
-                "Law 3 is lowkey underrated. So many people show their hand too early.",
-              createdAt: "2025-04-18T11:07:00Z",
-            },
-          ],
-        },
-        {
-          id: "comment_002",
-          userId: "user_678",
-          content:
-            "I prefer Law 6 — 'Court attention at all cost.' Makes sense in today’s world.",
-          createdAt: "2025-04-18T11:10:00Z",
-          replies: [
-            {
-              id: "reply_003",
-              userId: "user_234",
-              content: "That one feels tailor-made for social media.",
-              createdAt: "2025-04-18T11:12:00Z",
-            },
-            {
-              id: "reply_004",
-              userId: "user_123",
-              content: "Right? Visibility is power now.",
-              createdAt: "2025-04-18T11:14:00Z",
-            },
-          ],
-        },
-      ],
-    },
-  ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: posts = [], isLoading } = useQueryPosts();
+  const { create } = useMutatePosts();
 
-  const handleCreatePost = (
-    newPost: Pick<PostEntity, "title" | "description" | "photoUrl">
-  ) => {
+  const handleCreatePost = async ({
+    title,
+    description,
+    photoUrl,
+  }: {
+    title: string;
+    description: string;
+    photoUrl?: string;
+  }) => {
     setIsModalOpen(false);
+    const user = auth.currentUser;
+    if (!user) return;
+    await create({
+      title,
+      description,
+      photoUrl,
+      userId: user.uid,
+    });
   };
 
   return (
@@ -124,9 +80,13 @@ export default function FeedPage() {
           onCreatePost={handleCreatePost}
         />
 
-        <div className="space-y-6 flex justify-center">
-          {posts.length === 0 ? (
-            <div className="rounded-lg border p-8 text-center">
+        <div className="space-y-6 flex flex-col items-center">
+          {isLoading ? (
+            <div className="w-full rounded-lg border p-8 text-center">
+              <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="w-full rounded-lg border p-8 text-center">
               <h2 className="text-xl font-semibold mb-2">No posts yet</h2>
               <p className="text-muted-foreground mb-4">
                 Create your first post to get started!
@@ -134,7 +94,7 @@ export default function FeedPage() {
               <Button onClick={() => setIsModalOpen(true)}>Create Post</Button>
             </div>
           ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} />)
+            posts.map((post) => <PostCard key={post.title} post={post} />)
           )}
         </div>
       </div>

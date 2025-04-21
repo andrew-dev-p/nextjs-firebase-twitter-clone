@@ -71,7 +71,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
   });
 
   return (
-    <Card className="overflow-hidden max-w-xl">
+    <Card className="overflow-hidden max-w-2xl">
       {post.photoUrl && (
         <div className="w-full h-64 overflow-hidden p-2 rounded-lg">
           <Image
@@ -90,7 +90,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
             <h2 className="text-xl font-bold">{post.title}</h2>
             <div className="flex items-center gap-2 mt-1">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={"/placeholder.svg"} alt={"Anonymous"} />
+                {/* <AvatarImage src={"/placeholder.svg"} alt={"Anonymous"} /> */}
                 <AvatarFallback>A</AvatarFallback>
               </Avatar>
               <span className="text-sm text-muted-foreground">
@@ -181,10 +181,10 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                       <div key={comment.id} className="border-t pt-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage
+                            {/* <AvatarImage
                               src={"/placeholder.svg"}
                               alt={"Anonymous"}
-                            />
+                            /> */}
                             <AvatarFallback>A</AvatarFallback>
                           </Avatar>
                           <span className="font-medium">Anonymous</span>
@@ -203,10 +203,10 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                                 className="flex items-start gap-2"
                               >
                                 <Avatar className="h-5 w-5 mt-1">
-                                  <AvatarImage
+                                  {/* <AvatarImage
                                     src={"/placeholder.svg"}
                                     alt={"Anonymous"}
-                                  />
+                                  /> */}
                                   <AvatarFallback>A</AvatarFallback>
                                 </Avatar>
                                 <div>
