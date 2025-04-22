@@ -3,23 +3,17 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useIsLoggedIn } from "@/hooks/use-is-logged-in";
-import { ToastContainer } from "react-toastify";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const isLoggedIn = useIsLoggedIn();
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (user) {
       router.replace("/feed");
     }
-  }, [isLoggedIn, router]);
+  }, [user, router]);
 
-  return (
-    <>
-      <ToastContainer />
-      {children}
-    </>
-  );
+  return children;
 }

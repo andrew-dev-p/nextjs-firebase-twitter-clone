@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getUserFromDb } from "@/firebase/db";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { PostEntity, CommentEntity } from "@/types/entities";
+import { useQuery } from "@tanstack/react-query";
+import type { UserEntity } from "@/types/entities";
+import { QueryKey } from "@/lib/constants";
 
 export enum VoteDirection {
   Up = "up",
@@ -35,6 +39,17 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
   const [comments, setComments] = useState<CommentEntity[]>(
     post.comments || []
   );
+
+  const {
+    data: author,
+    isLoading: authorLoading,
+    isError: authorError,
+  } = useQuery<UserEntity | null>({
+    queryKey: [QueryKey.USER, post.userId],
+    queryFn: () => getUserFromDb(post.userId),
+    enabled: !!post.userId && !isPreview,
+    staleTime: 60 * 1000,
+  });
 
   const handleVote = (direction: VoteDirection) => {
     if (voteStatus === direction) {
@@ -66,10 +81,6 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     setIsViewingComments(false);
   };
 
-  const formattedDate = formatDistanceToNow(new Date(post.createdAt), {
-    addSuffix: true,
-  });
-
   return (
     <Card className="overflow-hidden max-w-2xl">
       {post.photoUrl && (
@@ -84,21 +95,39 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
           />
         </div>
       )}
-      <CardHeader>
-        <div className="flex justify-between items-start">
+      <CardHeader className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-row items-center gap-4">
+          <Avatar>
+            {authorLoading ? (
+              <AvatarFallback>...</AvatarFallback>
+            ) : author && author.profilePhotoUrl ? (
+              <AvatarImage src={author.profilePhotoUrl} />
+            ) : (
+              <AvatarFallback>
+                {author ? author.username[0]?.toUpperCase() : "A"}
+              </AvatarFallback>
+            )}
+          </Avatar>
           <div>
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            <div className="flex items-center gap-2 mt-1">
-              <Avatar className="h-6 w-6">
-                {/* <AvatarImage src={"/placeholder.svg"} alt={"Anonymous"} /> */}
-                <AvatarFallback>A</AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-muted-foreground">
-                Anonymous • {formattedDate}
-              </span>
+            <div className="font-semibold text-base">
+              {isPreview
+                ? "You"
+                : authorLoading
+                ? "Loading..."
+                : author
+                ? author.username
+                : authorError
+                ? "Error"
+                : "Anonymous"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {formatDistanceToNow(new Date(post.createdAt), {
+                addSuffix: true,
+              })}
             </div>
           </div>
         </div>
+        {author && <div>123</div>}
       </CardHeader>
       <CardContent>
         <p className="whitespace-pre-line">{post.description}</p>
@@ -181,10 +210,6 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                       <div key={comment.id} className="border-t pt-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Avatar className="h-6 w-6">
-                            {/* <AvatarImage
-                              src={"/placeholder.svg"}
-                              alt={"Anonymous"}
-                            /> */}
                             <AvatarFallback>A</AvatarFallback>
                           </Avatar>
                           <span className="font-medium">Anonymous</span>
@@ -203,10 +228,6 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
                                 className="flex items-start gap-2"
                               >
                                 <Avatar className="h-5 w-5 mt-1">
-                                  {/* <AvatarImage
-                                    src={"/placeholder.svg"}
-                                    alt={"Anonymous"}
-                                  /> */}
                                   <AvatarFallback>A</AvatarFallback>
                                 </Avatar>
                                 <div>

@@ -13,15 +13,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { logoutUser } from "@/firebase/auth";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { Button } from "../ui/button";
 import { LogOut, Moon, Sun, User } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function Navbar() {
   // const { setTheme } = useTheme();
   const router = useRouter();
 
-  const userInfo = useCurrentUser();
+  const user = useAuthStore((state) => state.user);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -77,9 +77,9 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={userInfo?.profilePhotoUrl} alt="User" />
+                  <AvatarImage src={user?.profilePhotoUrl} alt="User" />
                   <AvatarFallback>
-                    {userInfo?.username?.[0].toUpperCase()}
+                    {user?.username?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -87,10 +87,8 @@ export function Navbar() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{userInfo?.username}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {userInfo?.email}
-                  </p>
+                  <p className="font-medium">{user?.username}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
               </div>
               <DropdownMenuSeparator />

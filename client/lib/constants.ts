@@ -4,5 +4,6 @@ export enum APIRoute {
 }
 
 export enum QueryKey {
+  USER = "USER",
   POSTS = "POSTS",
 }

@@ -18,10 +18,10 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { updateUserInDb } from "@/firebase/db";
 import { updateUserEmail } from "@/firebase/auth";
 import { auth } from "@/firebase/auth";
+import { useAuthStore } from "@/stores/auth-store";
 
 const profileSchema = z.object({
   username: z
@@ -48,18 +48,18 @@ export function ProfileForm() {
     },
   });
 
-  const userInfo = useCurrentUser();
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    if (userInfo) {
+    if (user) {
       form.reset({
-        username: userInfo.username,
-        email: userInfo.email,
-        profilePhoto: userInfo.profilePhotoUrl || "",
+        username: user.username,
+        email: user.email,
+        profilePhoto: user.profilePhotoUrl || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo]);
+  }, [user]);
 
   const onSubmit = async (values: ProfileSchema) => {
     setIsLoading(true);
