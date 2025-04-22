@@ -19,6 +19,7 @@ import { PostEntity, CommentEntity } from "@/types/entities";
 import { useQuery } from "@tanstack/react-query";
 import type { UserEntity } from "@/types/entities";
 import { QueryKey } from "@/lib/constants";
+import { useAuthStore } from "@/stores/auth-store";
 
 export enum VoteDirection {
   Up = "up",
@@ -39,6 +40,8 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
   const [comments, setComments] = useState<CommentEntity[]>(
     post.comments || []
   );
+
+  const currentUser = useAuthStore((state) => state.user);
 
   const {
     data: author,
@@ -127,7 +130,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
             </div>
           </div>
         </div>
-        {author && <div>123</div>}
+        {author === currentUser && <div>123</div>}
       </CardHeader>
       <CardContent>
         <p className="whitespace-pre-line">{post.description}</p>

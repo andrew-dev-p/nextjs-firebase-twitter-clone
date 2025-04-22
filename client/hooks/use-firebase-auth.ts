@@ -2,18 +2,16 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/auth";
 import { useAuthStore } from "@/stores/auth-store";
+import { getUserFromDb } from "@/firebase/db";
 
 export function useFirebaseAuth() {
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser({
-          username: firebaseUser.displayName!,
-          email: firebaseUser.email!,
-          profilePhotoUrl: firebaseUser.photoURL || "",
-        });
+        const user = await getUserFromDb(firebaseUser.uid);
+        setUser(user);
       } else {
         setUser(null);
       }
