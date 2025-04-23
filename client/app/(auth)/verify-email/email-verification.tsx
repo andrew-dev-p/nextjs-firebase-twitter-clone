@@ -48,10 +48,6 @@ export function EmailVerification() {
     },
   });
 
-  const handleResend = async () => {
-    resendMutation.mutate();
-  };
-
   const checkMutation = useMutation({
     mutationFn: async () => {
       return await checkEmailVerification();
@@ -76,10 +72,6 @@ export function EmailVerification() {
     },
   });
 
-  const handleContinue = async () => {
-    checkMutation.mutate();
-  };
-
   return (
     <div className="mt-6 space-y-6">
       <Alert>
@@ -97,22 +89,21 @@ export function EmailVerification() {
 
       <div className="space-y-4">
         <Button
-          onClick={handleResend}
-          variant="outline"
+          onClick={() => resendMutation.mutate()}
+          disabled={isResendDisabled || resendMutation.isPending}
           className="w-full"
-          disabled={isResendDisabled}
         >
-          {isResendDisabled
-            ? `Resend available in ${countdown}s`
-            : "Resend verification email"}
+          {resendMutation.isPending
+            ? "Resending..."
+            : `Resend Email${isResendDisabled ? ` (${countdown})` : ""}`}
         </Button>
 
         <Button
-          onClick={handleContinue}
+          onClick={() => checkMutation.mutate()}
+          disabled={isChecking || checkMutation.isPending}
           className="w-full"
-          disabled={isChecking}
         >
-          {isChecking ? "Checking..." : "Continue"}
+          {checkMutation.isPending ? "Checking..." : "I've Verified My Email"}
         </Button>
       </div>
     </div>

@@ -28,7 +28,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 
 export const ForgotPasswordForm: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -49,13 +48,9 @@ export const ForgotPasswordForm: React.FC = () => {
     onError: () => {
       setError("Failed to send password reset email. Please try again.");
     },
-    onSettled: () => {
-      setIsLoading(false);
-    }
   });
 
   const onSubmit = async (values: ForgotPasswordSchema) => {
-    setIsLoading(true);
     setError("");
     setSuccess(false);
     mutation.mutate(values);
@@ -90,15 +85,15 @@ export const ForgotPasswordForm: React.FC = () => {
                     id="email"
                     type="email"
                     autoComplete="email"
-                    disabled={isLoading}
+                    disabled={mutation.isPending}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Sending..." : "Send reset link"}
+          <Button type="submit" className="w-full" disabled={mutation.isPending}>
+            {mutation.isPending ? "Sending..." : "Send reset link"}
           </Button>
         </form>
       </Form>
