@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { UserEntity } from "@/types/entities";
 
-type UserState = Pick<
+export type UserState = Pick<
   UserEntity,
   "id" | "username" | "email" | "profilePhotoUrl"
 > | null;

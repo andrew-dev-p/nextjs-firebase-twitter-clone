@@ -2,7 +2,7 @@
 
 import type { PostEntity } from "@/types/entities";
 import MovingText from "@/components/ui/moving-text";
-import { PostCard } from "@/components/post/post-card";
+import { PostCard } from "@/components/post-card/post-card";
 
 interface CreatePostPreviewProps {
   post: PostEntity;

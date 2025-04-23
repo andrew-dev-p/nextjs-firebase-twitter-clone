@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PostCard } from "@/components/post/post-card";
+import { PostCard } from "@/components/post-card/post-card";
 import type { FC } from "react";
 import type { PostEntity } from "@/types/entities";
 
@@ -13,7 +13,7 @@ interface PostsProps {
 
 export const Posts: FC<PostsProps> = ({ isLoading, posts, setIsModalOpen }) => {
   return (
-    <div className="space-y-6 flex flex-col items-center">
+    <div className="space-y-6 flex flex-col items-center w-full">
       {isLoading ? (
         <div className="w-full rounded-lg border p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">Loading...</h2>
