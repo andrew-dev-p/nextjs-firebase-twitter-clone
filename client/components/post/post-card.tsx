@@ -92,10 +92,8 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     setIsViewingComments(false);
   };
 
-  console.log(post);
-
   return (
-    <Card className="overflow-hidden max-w-2xl w-full">
+    <Card className="overflow-hidden max-w-2xl w-full py-3 gap-2">
       {post.photoUrl && (
         <div className="w-full h-64 overflow-hidden p-2 rounded-lg">
           <Image
@@ -161,7 +159,8 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
           </div>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-2">
+        <p className="text-xl font-semibold">{post.title} </p>
         <p className="whitespace-pre-line">{post.description}</p>
       </CardContent>
       {!isPreview && (
