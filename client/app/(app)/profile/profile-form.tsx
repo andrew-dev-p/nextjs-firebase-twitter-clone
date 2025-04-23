@@ -22,6 +22,8 @@ import { updateUserInDb } from "@/firebase/db";
 import { updateUserEmail } from "@/firebase/auth";
 import { auth } from "@/firebase/auth";
 import { useAuthStore } from "@/stores/auth-store";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKey } from "@/lib/constants";
 
 const profileSchema = z.object({
   username: z
@@ -37,6 +39,8 @@ const profileSchema = z.object({
 type ProfileSchema = z.infer<typeof profileSchema>;
 
 export function ProfileForm() {
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ProfileSchema>({
@@ -70,6 +74,17 @@ export function ProfileForm() {
       if (currentUser) {
         await updateUserInDb({
           uid: currentUser.uid,
+          username: values.username,
+          email: values.email,
+          profilePhotoUrl: values.profilePhoto,
+        });
+        setUser({
+          id: currentUser.uid,
+          username: values.username,
+          email: values.email,
+          profilePhotoUrl: values.profilePhoto,
+        });
+        queryClient.setQueryData([QueryKey.USER, currentUser.uid], {
           username: values.username,
           email: values.email,
           profilePhotoUrl: values.profilePhoto,
