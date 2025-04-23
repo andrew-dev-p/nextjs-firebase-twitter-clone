@@ -19,6 +19,7 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
+import { useMutation } from "@tanstack/react-query";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -38,18 +39,26 @@ export const ForgotPasswordForm: React.FC = () => {
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: async (values: ForgotPasswordSchema) => {
+      await sendPasswordResetEmail(auth, values.email);
+    },
+    onSuccess: () => {
+      setSuccess(true);
+    },
+    onError: () => {
+      setError("Failed to send password reset email. Please try again.");
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    }
+  });
+
   const onSubmit = async (values: ForgotPasswordSchema) => {
     setIsLoading(true);
     setError("");
     setSuccess(false);
-    try {
-      await sendPasswordResetEmail(auth, values.email);
-      setSuccess(true);
-    } catch {
-      setError("Failed to send password reset email. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    mutation.mutate(values);
   };
 
   return (
