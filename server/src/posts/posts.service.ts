@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostEntity } from './post.entity';
 import { firestore } from '../firebase';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostEntity } from 'src/types/entities';
 
 @Injectable()
 export class PostsService {
@@ -50,5 +50,11 @@ export class PostsService {
     if (!doc.exists) return false;
     await docRef.delete();
     return true;
+  }
+
+  async findOne(postId: string): Promise<PostEntity | null> {
+    const doc = await firestore.collection('posts').doc(postId).get();
+    if (!doc.exists) return null;
+    return { id: doc.id, ...doc.data() } as PostEntity;
   }
 }

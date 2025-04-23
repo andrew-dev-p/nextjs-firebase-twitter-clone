@@ -14,7 +14,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '../auth.guard';
 import { GetUser } from '../get-user.decorator';
-import { UserEntity } from 'src/types/user.type';
+import { UserEntity } from 'src/types/entities';
 
 @Controller('posts')
 export class PostsController {
