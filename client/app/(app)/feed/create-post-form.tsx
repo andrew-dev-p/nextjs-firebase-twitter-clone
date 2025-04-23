@@ -56,7 +56,6 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
       });
     },
     onSuccess: () => {
-      toast.success("Post created successfully");
       form.reset();
       setImageFile(undefined);
       setImageUrl(undefined);

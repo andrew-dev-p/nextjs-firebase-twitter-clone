@@ -8,9 +8,10 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostsService {
   private collection = firestore.collection('posts');
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, userId: string) {
     const post = {
       ...createPostDto,
+      userId,
       likes: [],
       likesCount: 0,
       dislikes: [],

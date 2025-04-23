@@ -67,7 +67,6 @@ export function EditPostDialog({
     setUploading(true);
     try {
       await onEditPost(values as PostEntity);
-      toast.success("Post updated successfully");
       onClose();
     } catch {
       toast.error("Failed to update post. Please try again.");

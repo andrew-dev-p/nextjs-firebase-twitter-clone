@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosClient from "../lib/axios-client";
 import { PostEntity } from "../types/entities";
 import { APIRoute, QueryKey } from "@/lib/constants";
+import { toast } from "react-toastify";
 
 const createPost = async (
   post: Omit<
@@ -44,20 +45,26 @@ export const useMutatePosts = () => {
 
   const { mutateAsync: create } = useMutation({
     mutationFn: createPost,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+    onSuccess: () => {
+      toast.success("Post created successfully");
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] });
+    },
   });
 
   const { mutateAsync: update } = useMutation({
     mutationFn: updatePost,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+    onSuccess: () => {
+      toast.success("Post updated successfully");
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] });
+    },
   });
 
   const { mutateAsync: remove } = useMutation({
     mutationFn: deletePost,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] }),
+    onSuccess: () => {
+      toast.success("Post deleted successfully");
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] });
+    },
   });
 
   return { create, update, remove };
