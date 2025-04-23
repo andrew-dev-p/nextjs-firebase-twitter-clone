@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "react-toastify";
 import { ProfilePhotoPicker } from "@/components/profile-photo-picker/profile-photo-picker";
+import { useMutation } from "@tanstack/react-query";
 
 const signUpSchema = z.object({
   username: z
@@ -60,17 +61,12 @@ export function SignUpForm() {
     },
   });
 
-  const onSubmit = async (values: SignUpSchema) => {
-    setIsLoading(true);
-    setError("");
-    try {
-      const userCredential = await toast.promise(
-        createUserWithEmailAndPassword(auth, values.email, values.password),
-        {
-          pending: "Creating account...",
-          success: "Account created successfully",
-          error: "Failed to create account. Please try again.",
-        }
+  const mutation = useMutation({
+    mutationFn: async (values: SignUpSchema) => {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
       );
       await createUserInDb({
         uid: userCredential.user.uid,
@@ -79,23 +75,28 @@ export function SignUpForm() {
         profilePhotoUrl: values.profilePhoto || "",
       });
       await sendEmailVerification(userCredential.user);
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully");
       router.push("/verify-email");
-    } catch {
+    },
+    onError: () => {
       setError("Failed to create account. Please try again.");
-    } finally {
+    },
+    onSettled: () => {
       setIsLoading(false);
-    }
-  };
+    },
+  });
 
-  const handleGoogleSignup = async () => {
+  const onSubmit = async (values: SignUpSchema) => {
     setIsLoading(true);
     setError("");
-    try {
-      const googleResult = await toast.promise(signInWithGoogle(), {
-        pending: "Authenticating...",
-        success: "Logged in with Google",
-        error: "Google authentication failed",
-      });
+    mutation.mutate(values);
+  };
+
+  const googleMutation = useMutation({
+    mutationFn: async () => {
+      const googleResult = await signInWithGoogle();
       if (googleResult?.user) {
         await createUserInDb({
           uid: googleResult.user.uid,
@@ -104,12 +105,23 @@ export function SignUpForm() {
           profilePhotoUrl: googleResult.user.photoURL || "",
         });
       }
+    },
+    onSuccess: () => {
+      toast.success("Logged in with Google");
       router.push("/feed");
-    } catch {
+    },
+    onError: () => {
       setError("Google authentication failed");
-    } finally {
+    },
+    onSettled: () => {
       setIsLoading(false);
-    }
+    },
+  });
+
+  const handleGoogleSignup = async () => {
+    setIsLoading(true);
+    setError("");
+    googleMutation.mutate();
   };
 
   return (

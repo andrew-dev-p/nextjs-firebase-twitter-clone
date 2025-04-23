@@ -23,6 +23,7 @@ import {
   FormField,
 } from "@/components/ui/form";
 import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -46,41 +47,48 @@ export function LoginForm() {
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: async (values: LoginSchema) => {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+    },
+    onSuccess: () => {
+      toast.success("Logged in successfully");
+      router.push("/feed");
+    },
+    onError: () => {
+      setError("Invalid email or password");
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const onSubmit = async (values: LoginSchema) => {
     setIsLoading(true);
     setError("");
-    try {
-      await toast.promise(
-        signInWithEmailAndPassword(auth, values.email, values.password),
-        {
-          pending: "Authenticating...",
-          success: "Logged in successfully",
-          error: "Invalid email or password",
-        }
-      );
-      router.push("/feed");
-    } catch {
-      setError("Invalid email or password");
-    } finally {
-      setIsLoading(false);
-    }
+    mutation.mutate(values);
   };
+
+  const googleMutation = useMutation({
+    mutationFn: async () => {
+      await signInWithGoogle();
+    },
+    onSuccess: () => {
+      toast.success("Logged in with Google");
+      router.push("/feed");
+    },
+    onError: () => {
+      setError("Google authentication failed");
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError("");
-    try {
-      await toast.promise(signInWithGoogle(), {
-        pending: "Authenticating...",
-        success: "Logged in with Google",
-        error: "Google authentication failed",
-      });
-      router.push("/feed");
-    } catch {
-      setError("Google authentication failed");
-    } finally {
-      setIsLoading(false);
-    }
+    googleMutation.mutate();
   };
 
   return (
