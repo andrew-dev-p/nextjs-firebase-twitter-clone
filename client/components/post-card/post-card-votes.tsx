@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import { PostEntity } from "@/types/entities";
+import { useMutateReactions } from "@/hooks/use-mutate-reactions";
+import { useAuthStore } from "@/stores/auth-store";
 
 export enum VoteDirection {
   Up = "up",
@@ -10,11 +12,21 @@ export enum VoteDirection {
 }
 
 const PostCardVotes = ({ post }: { post: PostEntity }) => {
+  const user = useAuthStore((state) => state.user);
+
   const initialVotes = (post.likes?.length || 0) - (post.dislikes?.length || 0);
   const [votes, setVotes] = useState(initialVotes);
-  const [voteStatus, setVoteStatus] = useState<VoteDirection | null>(null);
+  const [voteStatus, setVoteStatus] = useState<VoteDirection | null>(
+    post.likes?.includes(user?.id || "")
+      ? VoteDirection.Up
+      : post.dislikes?.includes(user?.id || "")
+      ? VoteDirection.Down
+      : null
+  );
 
-  const handleVote = (direction: VoteDirection) => {
+  const { like, dislike } = useMutateReactions();
+
+  const handleVote = async (direction: VoteDirection) => {
     if (voteStatus === direction) {
       setVoteStatus(null);
       setVotes(initialVotes);
@@ -23,8 +35,15 @@ const PostCardVotes = ({ post }: { post: PostEntity }) => {
         voteStatus === null ? 0 : voteStatus === VoteDirection.Up ? 1 : -1;
       const newVote = direction === VoteDirection.Up ? 1 : -1;
       const newTotalVote = votes + newVote - previousVote;
+
       setVoteStatus(direction);
       setVotes(newTotalVote);
+    }
+
+    if (direction === VoteDirection.Up) {
+      await like(post.id);
+    } else {
+      await dislike(post.id);
     }
   };
 
