@@ -100,8 +100,10 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
       )}
       <CardHeader className="flex flex-row justify-between items-center gap-4">
         <div className="flex flex-row items-center gap-4">
-          <Avatar>
-            {authorLoading ? (
+          <Avatar className="mt-1">
+            {isPreview ? (
+              <AvatarImage src={currentUser?.profilePhotoUrl || ""} />
+            ) : authorLoading ? (
               <AvatarFallback>...</AvatarFallback>
             ) : author && author.profilePhotoUrl ? (
               <AvatarImage src={author.profilePhotoUrl} />
@@ -114,7 +116,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
           <div>
             <div className="font-semibold text-base">
               {isPreview
-                ? "You"
+                ? currentUser?.username
                 : authorLoading
                 ? "Loading..."
                 : author
@@ -130,7 +132,7 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
             </div>
           </div>
         </div>
-        {author === currentUser && <div>123</div>}
+        {author?.id === currentUser?.id && <div>123</div>}
       </CardHeader>
       <CardContent>
         <p className="whitespace-pre-line">{post.description}</p>

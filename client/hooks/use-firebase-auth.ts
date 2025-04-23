@@ -6,17 +6,34 @@ import { getUserFromDb } from "@/firebase/db";
 
 export function useFirebaseAuth() {
   const setUser = useAuthStore((state) => state.setUser);
+  const setLoading = useAuthStore((state) => state.setLoading);
+  const setError = useAuthStore((state) => state.setError);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const user = await getUserFromDb(firebaseUser.uid);
-        setUser(user);
-      } else {
+      try {
+        if (firebaseUser) {
+          const user = await getUserFromDb(firebaseUser.uid);
+
+          setUser({
+            username: user?.username || "",
+            email: user?.email || "",
+            profilePhotoUrl: user?.profilePhotoUrl || "",
+            id: firebaseUser.uid,
+          });
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
         setUser(null);
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, [setUser]);
+  }, [setUser, setLoading, setError]);
 }

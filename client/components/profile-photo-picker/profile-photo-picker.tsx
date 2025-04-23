@@ -65,7 +65,6 @@ export function ProfilePhotoPicker({
     if (file) {
       const storagePath = `profile-photos/${crypto.randomUUID()}-${file.name}`;
       const url = await uploadFileAndGetUrl(storagePath, file);
-      console.log(url);
 
       setPhotoUrl(url);
       onPhotoSelect(url);

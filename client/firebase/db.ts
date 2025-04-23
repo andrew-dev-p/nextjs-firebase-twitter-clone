@@ -1,4 +1,10 @@
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { app } from "./config";
 import { UserEntity } from "@/types/entities";
 import { auth } from "./auth";

@@ -150,8 +150,6 @@ export function CreatePostModal({
     createdAt: new Date().toISOString(),
   };
 
-  console.log(imageUrl);
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
