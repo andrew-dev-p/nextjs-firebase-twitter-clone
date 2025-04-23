@@ -20,6 +20,9 @@ import { useQuery } from "@tanstack/react-query";
 import type { UserEntity } from "@/types/entities";
 import { QueryKey } from "@/lib/constants";
 import { useAuthStore } from "@/stores/auth-store";
+import { EditPostDialog } from "@/components/post/edit-post-dialog";
+import { DeletePostDialog } from "@/components/post/delete-post-dialog";
+import { useMutatePosts } from "@/hooks/use-mutate-posts";
 
 export enum VoteDirection {
   Up = "up",
@@ -54,6 +57,11 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     staleTime: 60 * 1000,
   });
 
+  const { update, remove } = useMutatePosts();
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const handleVote = (direction: VoteDirection) => {
     if (voteStatus === direction) {
       setVoteStatus(null);
@@ -84,8 +92,10 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     setIsViewingComments(false);
   };
 
+  console.log(post);
+
   return (
-    <Card className="overflow-hidden max-w-2xl">
+    <Card className="overflow-hidden max-w-2xl w-full">
       {post.photoUrl && (
         <div className="w-full h-64 overflow-hidden p-2 rounded-lg">
           <Image
@@ -132,7 +142,24 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
             </div>
           </div>
         </div>
-        {author?.id === currentUser?.id && <div>123</div>}
+        {post.userId === currentUser?.id && (
+          <div className="flex flex-col gap-2 mb-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEditDialogOpen(true)}
+            >
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Delete
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <p className="whitespace-pre-line">{post.description}</p>
@@ -262,6 +289,17 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
           </AnimatePresence>
         </CardFooter>
       )}
+      <EditPostDialog
+        isOpen={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        post={post}
+        onEditPost={(data) => update({ id: post.id, update: data })}
+      />
+      <DeletePostDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onDelete={() => remove(post.id)}
+      />
     </Card>
   );
 }

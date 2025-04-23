@@ -8,8 +8,8 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export class PostsService {
   private collection = firestore.collection('posts');
 
-  async create(createPostDto: CreatePostDto): Promise<PostEntity> {
-    const post: PostEntity = {
+  async create(createPostDto: CreatePostDto) {
+    const post = {
       ...createPostDto,
       likes: [],
       likesCount: 0,
@@ -23,15 +23,18 @@ export class PostsService {
     return post;
   }
 
-  async findAll(): Promise<PostEntity[]> {
+  async findAll() {
     const snapshot = await this.collection.get();
-    return snapshot.docs.map((doc) => doc.data() as PostEntity);
+    return snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as PostEntity,
+    );
   }
 
-  async update(
-    id: string,
-    updatePostDto: UpdatePostDto,
-  ): Promise<PostEntity | undefined> {
+  async update(id: string, updatePostDto: UpdatePostDto) {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
     if (!doc.exists) return undefined;
@@ -40,7 +43,7 @@ export class PostsService {
     return updatedData as PostEntity;
   }
 
-  async remove(id: string): Promise<boolean> {
+  async remove(id: string) {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
     if (!doc.exists) return false;

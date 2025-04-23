@@ -35,9 +35,7 @@ const updatePost = async ({
 };
 
 const deletePost = async (id: string) => {
-  const res = await axiosClient.delete<{ deleted: boolean }>(
-    APIRoute.POST.replace(":id", id)
-  );
+  const res = await axiosClient.delete(APIRoute.POST.replace(":id", id));
   return res.data;
 };
 

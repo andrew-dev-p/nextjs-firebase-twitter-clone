@@ -12,6 +12,7 @@ export class CommentEntity {
 }
 
 export class PostEntity {
+  id: string;
   userId: string;
   title: string;
   description?: string;

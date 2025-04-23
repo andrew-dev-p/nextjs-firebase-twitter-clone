@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostEntity } from './post.entity';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { NotFoundException } from '@nestjs/common';
 
@@ -18,25 +17,22 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  async create(@Body() createPostDto: CreatePostDto): Promise<PostEntity> {
+  async create(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
 
   @Get()
-  async findAll(): Promise<PostEntity[]> {
+  async findAll() {
     return this.postsService.findAll();
   }
 
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
-  ): Promise<PostEntity | undefined> {
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(id, updatePostDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<{ deleted: boolean }> {
+  async remove(@Param('id') id: string) {
     const deleted = await this.postsService.remove(id);
     if (!deleted) throw new NotFoundException('Post not found');
     return { deleted };
