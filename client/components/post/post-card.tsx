@@ -54,7 +54,6 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     queryKey: [QueryKey.USER, post.userId],
     queryFn: () => getUserFromDb(post.userId),
     enabled: !!post.userId && !isPreview,
-    staleTime: 60 * 1000,
   });
 
   const { update, remove } = useMutatePosts();
@@ -91,6 +90,8 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
     setCommentText("");
     setIsViewingComments(false);
   };
+
+  console.log(author);
 
   return (
     <Card className="overflow-hidden max-w-2xl w-full py-3 gap-2">

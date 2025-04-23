@@ -35,6 +35,7 @@ export async function getUserFromDb(uid: string): Promise<UserEntity | null> {
   if (userDoc.exists()) {
     return userDoc.data() as UserEntity;
   }
+
   return null;
 }
 

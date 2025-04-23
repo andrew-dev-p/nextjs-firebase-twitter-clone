@@ -27,7 +27,7 @@ export const Posts: FC<PostsProps> = ({ isLoading, posts, setIsModalOpen }) => {
           <Button onClick={() => setIsModalOpen(true)}>Create Post</Button>
         </div>
       ) : (
-        posts.map((post) => <PostCard key={post.title} post={post} />)
+        posts.map((post) => <PostCard key={post.id} post={post} />)
       )}
     </div>
   );

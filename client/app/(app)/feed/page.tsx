@@ -9,7 +9,7 @@ import { Posts } from "./posts";
 
 export default function FeedPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data: posts = [], isLoading } = useQueryPosts();
+  const { data: posts, isLoading } = useQueryPosts();
 
   return (
     <div className="min-h-screen">

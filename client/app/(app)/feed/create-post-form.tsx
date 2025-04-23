@@ -60,7 +60,7 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
       form.reset();
       setImageFile(undefined);
       setImageUrl(undefined);
-      onSuccess?.();
+      onSuccess();
     },
     onError: () => {
       toast.error("Failed to create post. Please try again.");
