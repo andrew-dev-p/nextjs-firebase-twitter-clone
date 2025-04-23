@@ -8,9 +8,11 @@ import {
   resendVerificationEmail,
   checkEmailVerification,
 } from "@/firebase/auth";
+import { useMutation } from "@tanstack/react-query";
 
 export function EmailVerification() {
   const router = useRouter();
+
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [countdown, setCountdown] = useState(30);
   const [isChecking, setIsChecking] = useState(false);
@@ -33,21 +35,31 @@ export function EmailVerification() {
     };
   }, [isResendDisabled, countdown]);
 
-  const handleResend = async () => {
-    try {
-      setIsResendDisabled(true);
+  const resendMutation = useMutation({
+    mutationFn: async () => {
       await resendVerificationEmail();
-    } catch {
+    },
+    onMutate: () => {
+      setIsResendDisabled(true);
+    },
+    onError: () => {
       setError("Failed to resend verification email. Please try again.");
       setIsResendDisabled(false);
-    }
+    },
+  });
+
+  const handleResend = async () => {
+    resendMutation.mutate();
   };
 
-  const handleContinue = async () => {
-    try {
+  const checkMutation = useMutation({
+    mutationFn: async () => {
+      return await checkEmailVerification();
+    },
+    onMutate: () => {
       setIsChecking(true);
-      const isVerified = await checkEmailVerification();
-
+    },
+    onSuccess: (isVerified: boolean) => {
       if (isVerified) {
         router.push("/feed");
       } else {
@@ -55,11 +67,17 @@ export function EmailVerification() {
           "Your email is not verified yet. Please check your inbox and click the verification link."
         );
       }
-    } catch {
+    },
+    onError: () => {
       setError("Failed to check verification status. Please try again.");
-    } finally {
+    },
+    onSettled: () => {
       setIsChecking(false);
-    }
+    },
+  });
+
+  const handleContinue = async () => {
+    checkMutation.mutate();
   };
 
   return (
