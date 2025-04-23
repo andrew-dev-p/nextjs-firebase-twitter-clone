@@ -2,7 +2,6 @@
 
 import type React from "react";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import { changeUserPassword } from "@/firebase/auth";
+import { useMutation } from "@tanstack/react-query";
 import {
   Form,
   FormItem,
@@ -39,7 +39,6 @@ const passwordSchema = z
 type PasswordSchema = z.infer<typeof passwordSchema>;
 
 export function PasswordForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<PasswordSchema>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -49,22 +48,26 @@ export function PasswordForm() {
     },
   });
 
-  const onSubmit = async (values: PasswordSchema) => {
-    setIsLoading(true);
-    try {
+  const mutation = useMutation({
+    mutationFn: async (values: PasswordSchema) => {
       await changeUserPassword({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
+    },
+    onSuccess: () => {
       form.reset();
       toast.success("Password changed successfully");
-    } catch {
+    },
+    onError: () => {
       toast.error(
         "Failed to change password. You may be using the wrong password. Please try again."
       );
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const onSubmit = (values: PasswordSchema) => {
+    mutation.mutate(values);
   };
 
   return (
@@ -126,8 +129,8 @@ export function PasswordForm() {
             )}
           />
         </div>
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Changing password..." : "Change password"}
+        <Button type="submit" disabled={mutation.isPending} className="w-full">
+          {mutation.isPending ? "Changing password..." : "Change password"}
         </Button>
       </form>
     </Form>

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
@@ -23,6 +23,7 @@ import { updateUserEmail } from "@/firebase/auth";
 import { auth } from "@/firebase/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { QueryKey } from "@/lib/constants";
 
 const profileSchema = z.object({
@@ -41,7 +42,7 @@ type ProfileSchema = z.infer<typeof profileSchema>;
 export function ProfileForm() {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser);
-  const [isLoading, setIsLoading] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const form = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
@@ -51,8 +52,6 @@ export function ProfileForm() {
       profilePhoto: "",
     },
   });
-
-  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (user) {
@@ -65,11 +64,9 @@ export function ProfileForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const onSubmit = async (values: ProfileSchema) => {
-    setIsLoading(true);
-    try {
+  const mutation = useMutation({
+    mutationFn: async (values: ProfileSchema) => {
       await updateUserEmail(values.email);
-
       const currentUser = auth.currentUser;
       if (currentUser) {
         await updateUserInDb({
@@ -79,27 +76,24 @@ export function ProfileForm() {
           profilePhotoUrl: values.profilePhoto,
         });
         setUser({
-          id: currentUser.uid,
+          ...user!,
           username: values.username,
           email: values.email,
           profilePhotoUrl: values.profilePhoto,
         });
-        queryClient.setQueryData([QueryKey.USER, currentUser.uid], {
-          username: values.username,
-          email: values.email,
-          profilePhotoUrl: values.profilePhoto,
-        });
+        queryClient.invalidateQueries({ queryKey: [QueryKey.USER] });
       }
+    },
+    onSuccess: () => {
       toast.success("Profile updated successfully");
-    } catch (err) {
-      const errorMsg =
-        err instanceof Error
-          ? err.message
-          : "Failed to update profile. Please try again.";
-      toast.error(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
+    },
+    onError: () => {
+      toast.error("Failed to update profile. Please try again.");
+    },
+  });
+
+  const onSubmit = (values: ProfileSchema) => {
+    mutation.mutate(values);
   };
 
   return (
@@ -149,8 +143,8 @@ export function ProfileForm() {
             )}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Changes"}
+        <Button type="submit" disabled={mutation.isPending} className="w-full">
+          {mutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </form>
     </Form>
