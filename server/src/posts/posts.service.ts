@@ -30,19 +30,17 @@ export class PostsService {
     sortOption?: SortOption,
     cursor?: string,
     limit = 10,
-  ): Promise<PostEntity[]> {
-    let query = userId
+  ): Promise<{ posts: PostEntity[]; nextCursor: string | null }> {
+    let query: FirebaseFirestore.Query = userId
       ? this.collection.where('userId', '==', userId)
       : this.collection;
 
-    let sortField = 'createdAt';
-    if (sortOption === SortOption.MostLikes) {
-      sortField = 'likesCount';
-    } else if (sortOption === SortOption.MostComments) {
-      sortField = 'commentsCount';
-    }
-
-    query = query.orderBy(sortField, 'desc');
+    if (sortOption === SortOption.Recent)
+      query = query.orderBy('createdAt', 'desc');
+    else if (sortOption === SortOption.MostLikes)
+      query = query.orderBy('likesCount', 'desc');
+    else if (sortOption === SortOption.MostComments)
+      query = query.orderBy('commentsCount', 'desc');
 
     if (cursor) {
       const lastDocSnapshot = await this.collection.doc(cursor).get();
@@ -54,13 +52,17 @@ export class PostsService {
     query = query.limit(limit);
 
     const snapshot = await query.get();
-    return snapshot.docs.map(
+    const posts = snapshot.docs.map(
       (doc) =>
         ({
           id: doc.id,
           ...doc.data(),
         }) as PostEntity,
     );
+
+    const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    return { posts, nextCursor: lastDoc?.id ?? null };
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {

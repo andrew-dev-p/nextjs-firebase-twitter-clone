@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { List, PlusCircle, Search } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import { CreatePostModal } from "./create-post-modal";
 import { useQueryPosts } from "@/hooks/use-query-posts";
 import { GlowingButton } from "./glowing-button";
@@ -34,10 +34,18 @@ export default function FeedPage() {
   const [sortOption, setSortOption] = useState<SortOption>(SortOption.Recent);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: posts = [], isLoading } = useQueryPosts(undefined, sortOption);
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useQueryPosts(undefined, sortOption);
+
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const loadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    await fetchNextPage();
   };
 
   return (
@@ -89,12 +97,20 @@ export default function FeedPage() {
         onClose={() => setIsModalOpen(false)}
       />
 
-      <div className="space-y-6 flex flex-col items-center mb-4">
+      <div className="space-y-6 flex flex-col items-center">
         <Posts
           isLoading={isLoading}
           posts={posts}
           setIsModalOpen={setIsModalOpen}
         />
+      </div>
+
+      <div className="flex justify-center my-4">
+        {hasNextPage && (
+          <Button onClick={loadMore} disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </Button>
+        )}
       </div>
     </div>
   );
