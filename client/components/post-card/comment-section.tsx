@@ -5,6 +5,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Send } from "lucide-react";
 import CommentCard from "./comment-card";
+import { useMutateComments } from "@/hooks/use-mutate-comments";
 
 const CommentSection = ({
   isViewingComments,
@@ -17,8 +18,14 @@ const CommentSection = ({
 }) => {
   const [commentText, setCommentText] = useState("");
 
+  const { create } = useMutateComments();
+
   const handleAddComment = () => {
-    console.log(commentText, postId);
+    create({
+      postId,
+      content: commentText,
+    });
+    setCommentText("");
   };
 
   return (

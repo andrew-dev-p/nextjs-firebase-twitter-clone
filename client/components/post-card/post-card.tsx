@@ -8,7 +8,7 @@ import { MessageSquare } from "lucide-react";
 import Image from "next/image";
 import { PostEntity } from "@/types/entities";
 import { useQuery } from "@tanstack/react-query";
-import type { CommentEntity, UserEntity } from "@/types/entities";
+import type { UserEntity } from "@/types/entities";
 import { QueryKey } from "@/lib/constants";
 import { useAuthStore } from "@/stores/auth-store";
 import { EditPostDialog } from "@/components/post-card/edit-post-dialog";
@@ -27,43 +27,6 @@ interface PostCardProps {
 
 export function PostCard({ post, isPreview = false }: PostCardProps) {
   const [isViewingComments, setIsViewingComments] = useState(false);
-
-  const mockComments: CommentEntity[] = [
-    {
-      id: "1",
-      content:
-        "This is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a commentThis is a comment",
-      createdAt: new Date().toISOString(),
-      userId: "1",
-      replies: [
-        {
-          id: "1",
-          content:
-            "This is a replyasdf asdf asd fasd fas dfasd a asdasd fasd fasd fasd fas dfasd fasd fasd fasd fasd fasdf asdf asd fasd fasd ",
-          createdAt: new Date().toISOString(),
-          userId: "1",
-        },
-        {
-          id: "1",
-          content: "This is a reply",
-          createdAt: new Date().toISOString(),
-          userId: "1",
-        },
-        {
-          id: "1",
-          content: "This is a reply",
-          createdAt: new Date().toISOString(),
-          userId: "1",
-        },
-      ],
-    },
-    {
-      id: "2",
-      content: "This is a comment",
-      createdAt: new Date().toISOString(),
-      userId: "1",
-    },
-  ];
 
   const currentUser = useAuthStore((state) => state.user);
 
@@ -132,14 +95,14 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
               <span
                 className={cn("text-sm", isViewingComments && "text-blue-500")}
               >
-                {mockComments.length} Comments
+                {post.commentsCount} Comments
               </span>
             </Button>
           </div>
           <CommentSection
             isViewingComments={isViewingComments}
             postId={post.id}
-            comments={mockComments}
+            comments={post.comments || []}
           />
         </CardFooter>
       )}
