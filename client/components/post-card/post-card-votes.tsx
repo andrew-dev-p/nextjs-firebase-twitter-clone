@@ -29,7 +29,7 @@ const PostCardVotes = ({ post }: { post: PostEntity }) => {
   const handleVote = async (direction: VoteDirection) => {
     if (voteStatus === direction) {
       setVoteStatus(null);
-      setVotes(initialVotes);
+      setVotes(votes - (direction === VoteDirection.Up ? 1 : -1));
     } else {
       const previousVote =
         voteStatus === null ? 0 : voteStatus === VoteDirection.Up ? 1 : -1;
