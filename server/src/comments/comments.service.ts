@@ -5,8 +5,9 @@ import {
 } from '@nestjs/common';
 import { firestore } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
-import { CommentEntity } from '../types/entities';
+import { CommentEntity, CommentReplyEntity } from '../types/entities';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreateReplyDto } from './dto/create-reply.dto';
 
 @Injectable()
 export class CommentsService {
@@ -46,37 +47,47 @@ export class CommentsService {
     return { comment };
   }
 
-  //   async createReply(dto: CreateReplyDto, userId: string) {
-  //     const { postId, commentId, content } = dto;
-  //     if (!postId || !commentId || !content || !userId) {
-  //       throw new BadRequestException(
-  //         'postId, commentId, content, and userId are required.',
-  //       );
-  //     }
-  //     const postRef = this.collection.doc(postId);
-  //     const postSnap = await postRef.get();
-  //     if (!postSnap.exists) {
-  //       throw new NotFoundException('Post not found.');
-  //     }
-  //     const postData = postSnap.data();
-  //     if (!postData || !Array.isArray(postData.comments)) {
-  //       throw new BadRequestException('Post has no comments array.');
-  //     }
-  //     const comments = postData.comments;
-  //     const idx = comments.findIndex((c: any) => c.id === commentId);
-  //     if (idx === -1) {
-  //       throw new NotFoundException('Comment not found.');
-  //     }
-  //     const reply: CommentReplyEntity = {
-  //       userId,
-  //       content,
-  //       createdAt: new Date().toISOString(),
-  //     };
-  //     comments[idx].replies = Array.isArray(comments[idx].replies)
-  //       ? comments[idx].replies
-  //       : [];
-  //     comments[idx].replies.push(reply);
-  //     await postRef.update({ comments });
-  //     return { reply };
-  //   }
+  async createReply(dto: CreateReplyDto, userId: string) {
+    const { postId, commentId, content } = dto;
+    if (!postId || !commentId || !content || !userId) {
+      throw new BadRequestException(
+        'postId, commentId, content, and userId are required.',
+      );
+    }
+
+    const postRef = this.collection.doc(postId);
+    const postSnap = await postRef.get();
+    if (!postSnap.exists) {
+      throw new NotFoundException('Post not found.');
+    }
+
+    const postData = postSnap.data();
+    if (!postData || !Array.isArray(postData.comments)) {
+      throw new BadRequestException('Post has no comments array.');
+    }
+
+    const comments = postData.comments as CommentEntity[];
+    const idx = comments.findIndex(
+      (comment: CommentEntity) => comment.id === commentId,
+    );
+    if (idx === -1) {
+      throw new NotFoundException('Comment not found.');
+    }
+
+    const reply: CommentReplyEntity = {
+      id: uuidv4(),
+      userId,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+
+    comments[idx].replies = Array.isArray(comments[idx].replies)
+      ? comments[idx].replies
+      : [];
+    comments[idx].replies.push(reply);
+
+    await postRef.update({ comments });
+
+    return { reply };
+  }
 }

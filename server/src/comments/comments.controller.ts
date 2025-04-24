@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreateReplyDto } from './dto/create-reply.dto';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from 'src/auth.guard';
 import { GetUser } from 'src/get-user.decorator';
@@ -18,9 +19,9 @@ export class CommentsController {
     return this.commentsService.createComment(dto, user.uid);
   }
 
-  // @Post('reply')
-  // @UseGuards(AuthGuard)
-  // async createReply(@GetUser() user: UserEntity, @Body() dto: CreateReplyDto) {
-  //   return this.commentsService.createReply(dto, user.uid);
-  // }
+  @Post('reply')
+  @UseGuards(AuthGuard)
+  async createReply(@GetUser() user: UserEntity, @Body() dto: CreateReplyDto) {
+    return this.commentsService.createReply(dto, user.uid);
+  }
 }
