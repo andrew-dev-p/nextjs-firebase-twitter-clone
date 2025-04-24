@@ -7,6 +7,7 @@ export interface UserEntity {
 }
 
 export class CommentReplyEntity {
+  id: string;
   userId: string;
   content: string;
   createdAt: string;
