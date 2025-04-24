@@ -3,6 +3,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { firestore } from '../firebase';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostEntity } from 'src/types/entities';
+import { SortOption } from './posts.controller';
 
 @Injectable()
 export class PostsService {
@@ -24,10 +25,34 @@ export class PostsService {
     return post;
   }
 
-  async findAll(userId?: string) {
-    const query = userId
+  async findAll(
+    userId?: string,
+    sortOption?: SortOption,
+    cursor?: string,
+    limit = 10,
+  ): Promise<PostEntity[]> {
+    let query = userId
       ? this.collection.where('userId', '==', userId)
       : this.collection;
+
+    let sortField = 'createdAt';
+    if (sortOption === SortOption.MostLikes) {
+      sortField = 'likesCount';
+    } else if (sortOption === SortOption.MostComments) {
+      sortField = 'commentsCount';
+    }
+
+    query = query.orderBy(sortField, 'desc');
+
+    if (cursor) {
+      const lastDocSnapshot = await this.collection.doc(cursor).get();
+      if (lastDocSnapshot.exists) {
+        query = query.startAfter(lastDocSnapshot);
+      }
+    }
+
+    query = query.limit(limit);
+
     const snapshot = await query.get();
     return snapshot.docs.map(
       (doc) =>

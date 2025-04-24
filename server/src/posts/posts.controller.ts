@@ -17,6 +17,12 @@ import { AuthGuard } from '../auth.guard';
 import { GetUser } from '../get-user.decorator';
 import { UserEntity } from 'src/types/entities';
 
+export enum SortOption {
+  Recent = 'recent',
+  MostLikes = 'most-likes',
+  MostComments = 'most-comments',
+}
+
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
@@ -32,8 +38,13 @@ export class PostsController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll(@Query('userId') userId?: string) {
-    return this.postsService.findAll(userId);
+  async findAll(
+    @Query('userId') userId?: string,
+    @Query('sortOption') sortOption?: SortOption,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit = 10,
+  ) {
+    return this.postsService.findAll(userId, sortOption, cursor, +limit);
   }
 
   @Patch(':id')
