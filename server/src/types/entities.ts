@@ -13,6 +13,7 @@ export class CommentReplyEntity {
 }
 
 export class CommentEntity {
+  id: string;
   userId: string;
   content: string;
   createdAt: string;
