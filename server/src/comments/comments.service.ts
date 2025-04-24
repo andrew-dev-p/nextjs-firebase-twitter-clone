@@ -6,7 +6,7 @@ import {
 import { firestore } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { CommentEntity } from '../types/entities';
-import { CreateCommentDto } from './dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class CommentsService {

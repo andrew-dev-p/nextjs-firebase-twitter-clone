@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { CreateCommentDto } from './dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from 'src/auth.guard';
 import { GetUser } from 'src/get-user.decorator';
