@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { Check, PencilIcon, TrashIcon } from "lucide-react";
 import { useMutateReplies } from "@/hooks/use-mutate-replies";
 import { Textarea } from "../ui/textarea";
+import Link from "next/link";
 
 const CommentReplyCard = ({
   postId,
@@ -41,18 +42,22 @@ const CommentReplyCard = ({
   return (
     <div className="flex justify-between gap-2">
       <div key={reply.id} className="flex items-start gap-2">
-        <Avatar className="h-5 w-5 mt-1">
-          <AvatarImage src={author?.profilePhotoUrl} />
-          <AvatarFallback>
-            {author?.username?.[0]?.toUpperCase() || "A"}
-          </AvatarFallback>
-        </Avatar>
+        <Link href={`/profile/${reply.userId}`}>
+          <Avatar className="h-5 w-5 mt-1">
+            <AvatarImage src={author?.profilePhotoUrl} />
+            <AvatarFallback>
+              {author?.username?.[0]?.toUpperCase() || "A"}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
         <div>
-          <span className="font-semibold text-xs">
-            {authorLoading
-              ? "..."
-              : author?.username || (authorError ? "Unknown" : "Anonymous")}
-          </span>
+          <Link href={`/profile/${reply.userId}`}>
+            <span className="font-semibold text-xs hover:underline">
+              {authorLoading
+                ? "..."
+                : author?.username || (authorError ? "Unknown" : "Anonymous")}
+            </span>
+          </Link>
           <span className="ml-2 text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(reply.createdAt), {
               addSuffix: true,

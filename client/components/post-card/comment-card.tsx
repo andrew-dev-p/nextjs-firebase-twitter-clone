@@ -13,6 +13,7 @@ import { Check, PencilIcon, Send, TrashIcon, X } from "lucide-react";
 import { useMutateReplies } from "@/hooks/use-mutate-replies";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMutateComments } from "@/hooks/use-mutate-comments";
+import Link from "next/link";
 
 const CommentCard = ({
   comment,
@@ -57,17 +58,21 @@ const CommentCard = ({
     <div key={comment.id} className="border-t pt-4">
       <div className="flex justify-between">
         <div className="flex items-center gap-2 mb-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={author?.profilePhotoUrl} />
-            <AvatarFallback>
-              {author?.username?.[0]?.toUpperCase() || "A"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="font-semibold mb-0.5">
-            {authorLoading
-              ? "..."
-              : author?.username || (authorError ? "Unknown" : "Anonymous")}
-          </span>
+          <Link href={`/profile/${comment.userId}`}>
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={author?.profilePhotoUrl} />
+              <AvatarFallback>
+                {author?.username?.[0]?.toUpperCase() || "A"}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+          <Link href={`/profile/${comment.userId}`}>
+            <span className="font-semibold mb-0.5 hover:underline">
+              {authorLoading
+                ? "..."
+                : author?.username || (authorError ? "Unknown" : "Anonymous")}
+            </span>
+          </Link>
           <span className="text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(comment.createdAt), {
               addSuffix: true,
