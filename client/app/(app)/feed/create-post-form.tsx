@@ -17,7 +17,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import { useMutatePosts } from "@/hooks/use-mutate-posts";
 import { auth } from "@/firebase/auth";
 
@@ -128,6 +128,15 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
                         width={480}
                         height={270}
                       />
+                      <Button
+                        className="absolute top-2 right-2"
+                        variant="destructive"
+                        type="button"
+                        size="icon"
+                        onClick={() => setImageUrl(undefined)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
                   ) : (
                     <div className="border border-dashed rounded-md p-8 text-center">

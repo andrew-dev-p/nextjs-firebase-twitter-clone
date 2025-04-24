@@ -23,6 +23,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import type { PostEntity } from "@/types/entities";
+import { Label } from "../ui/label";
+import { ImagePlus, X } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { uploadFileAndGetUrl } from "@/firebase/storage";
+import Image from "next/image";
 
 const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -36,7 +41,7 @@ interface EditPostDialogProps {
   isOpen: boolean;
   onClose: () => void;
   post: PostEntity;
-  onEditPost: (post: PostEntity) => Promise<PostEntity>;
+  onEditPost: (post: Partial<PostEntity>) => Promise<PostEntity>;
 }
 
 export function EditPostDialog({
@@ -45,7 +50,6 @@ export function EditPostDialog({
   post,
   onEditPost,
 }: EditPostDialogProps) {
-  const [uploading, setUploading] = useState(false);
   const form = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -55,6 +59,18 @@ export function EditPostDialog({
     },
   });
 
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(post.photoUrl);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImageUrl(URL.createObjectURL(file));
+      form.setValue("photoUrl", URL.createObjectURL(file));
+    }
+  };
+
   useEffect(() => {
     form.reset({
       title: post.title,
@@ -63,17 +79,35 @@ export function EditPostDialog({
     });
   }, [post, form]);
 
-  const onSubmit = async (values: PostSchema) => {
-    setUploading(true);
-    try {
-      await onEditPost(values as PostEntity);
+  const mutation = useMutation({
+    mutationFn: async (values: {
+      title: string;
+      description: string;
+      photoUrl?: string;
+    }) => {
+      let uploadedPhotoUrl = values.photoUrl;
+      if (imageFile) {
+        const storagePath = `post-photos/${crypto.randomUUID()}-${
+          imageFile.name
+        }`;
+        uploadedPhotoUrl = await uploadFileAndGetUrl(storagePath, imageFile);
+      }
+      await onEditPost({
+        title: values.title,
+        description: values.description,
+        photoUrl: uploadedPhotoUrl,
+      });
+    },
+    onSuccess: () => {
+      form.reset();
+      setImageFile(undefined);
+      setImageUrl(undefined);
       onClose();
-    } catch {
-      toast.error("Failed to update post. Please try again.");
-    } finally {
-      setUploading(false);
-    }
-  };
+    },
+    onError: () => {
+      toast.error("Failed to create post. Please try again.");
+    },
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -82,7 +116,10 @@ export function EditPostDialog({
           <DialogTitle>Edit Post</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -112,21 +149,62 @@ export function EditPostDialog({
             <FormField
               control={form.control}
               name="photoUrl"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
-                  <FormLabel>Photo URL</FormLabel>
+                  <FormLabel>Image (optional)</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter image URL (optional)"
-                      {...field}
-                    />
+                    <div className="space-y-2">
+                      {imageUrl ? (
+                        <div className="relative rounded-md overflow-hidden">
+                          <Image
+                            src={imageUrl}
+                            alt="Post preview"
+                            className="w-full h-48 object-cover"
+                            width={480}
+                            height={270}
+                          />
+                          <Button
+                            className="absolute top-2 right-2"
+                            variant="destructive"
+                            type="button"
+                            size="icon"
+                            onClick={() => setImageUrl(undefined)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border border-dashed rounded-md p-8 text-center">
+                          <Label
+                            htmlFor="image-upload"
+                            className="flex flex-col items-center gap-2 cursor-pointer"
+                          >
+                            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">
+                              Click to upload an image
+                            </span>
+                            <Input
+                              id="image-upload"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleImageChange}
+                            />
+                          </Label>
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={uploading} className="w-full">
-              {uploading ? "Saving..." : "Save Changes"}
+            <Button
+              type="submit"
+              disabled={mutation.isPending}
+              className="w-full"
+            >
+              {mutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </Form>
