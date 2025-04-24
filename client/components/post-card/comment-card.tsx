@@ -40,6 +40,7 @@ const CommentCard = ({
       content: replyText,
     });
     setReplyText("");
+    setIsReplying(false);
   };
 
   const {
@@ -154,7 +155,12 @@ const CommentCard = ({
       {comment.replies && comment.replies.length > 0 && (
         <div className="ml-10 mt-2 space-y-2 border-l border-muted-foreground/20 pl-4">
           {comment.replies.map((reply) => (
-            <CommentReplyCard key={reply.id} reply={reply} />
+            <CommentReplyCard
+              key={reply.id}
+              postId={postId}
+              commentId={comment.id}
+              reply={reply}
+            />
           ))}
         </div>
       )}
