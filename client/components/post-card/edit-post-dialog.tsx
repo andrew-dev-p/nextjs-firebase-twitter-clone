@@ -59,15 +59,26 @@ export function EditPostDialog({
     },
   });
 
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imageUrl, setImageUrl] = useState<string | undefined>(post.photoUrl);
+  const [uploading, setUploading] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       setImageUrl(URL.createObjectURL(file));
-      form.setValue("photoUrl", URL.createObjectURL(file));
+      setUploading(true);
+      try {
+        const storagePath = `post-photos/${crypto.randomUUID()}-${file.name}`;
+        const uploadedUrl = await uploadFileAndGetUrl(storagePath, file);
+        form.setValue("photoUrl", uploadedUrl);
+        toast.success("Image uploaded!");
+      } catch {
+        toast.error("Failed to upload image. Try again.");
+        setImageUrl(undefined);
+        form.setValue("photoUrl", undefined);
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -85,22 +96,14 @@ export function EditPostDialog({
       description: string;
       photoUrl?: string;
     }) => {
-      let uploadedPhotoUrl = values.photoUrl;
-      if (imageFile) {
-        const storagePath = `post-photos/${crypto.randomUUID()}-${
-          imageFile.name
-        }`;
-        uploadedPhotoUrl = await uploadFileAndGetUrl(storagePath, imageFile);
-      }
       await onEditPost({
         title: values.title,
         description: values.description,
-        photoUrl: uploadedPhotoUrl,
+        photoUrl: values.photoUrl,
       });
     },
     onSuccess: () => {
       form.reset();
-      setImageFile(undefined);
       setImageUrl(undefined);
       onClose();
     },
@@ -168,10 +171,18 @@ export function EditPostDialog({
                             variant="destructive"
                             type="button"
                             size="icon"
-                            onClick={() => setImageUrl(undefined)}
+                            onClick={() => {
+                              setImageUrl(undefined);
+                              form.setValue("photoUrl", undefined);
+                            }}
                           >
                             <X className="h-4 w-4" />
                           </Button>
+                          {uploading && (
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-bold">
+                              Uploading...
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="border border-dashed rounded-md p-8 text-center">
@@ -189,6 +200,7 @@ export function EditPostDialog({
                               accept="image/*"
                               className="hidden"
                               onChange={handleImageChange}
+                              disabled={uploading}
                             />
                           </Label>
                         </div>

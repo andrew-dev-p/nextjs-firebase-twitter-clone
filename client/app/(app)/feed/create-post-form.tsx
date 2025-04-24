@@ -31,8 +31,30 @@ interface CreatePostFormProps {
 export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
   const { create } = useMutatePosts();
 
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(
+    form.getValues("photoUrl")
+  );
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageUrl(URL.createObjectURL(file));
+      setUploading(true);
+      try {
+        const storagePath = `post-photos/${crypto.randomUUID()}-${file.name}`;
+        const uploadedUrl = await uploadFileAndGetUrl(storagePath, file);
+        form.setValue("photoUrl", uploadedUrl);
+        toast.success("Image uploaded!");
+      } catch {
+        toast.error("Failed to upload image. Try again.");
+        setImageUrl(undefined);
+        form.setValue("photoUrl", undefined);
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: {
@@ -40,24 +62,16 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
       description: string;
       photoUrl?: string;
     }) => {
-      let uploadedPhotoUrl = values.photoUrl;
-      if (imageFile) {
-        const storagePath = `post-photos/${crypto.randomUUID()}-${
-          imageFile.name
-        }`;
-        uploadedPhotoUrl = await uploadFileAndGetUrl(storagePath, imageFile);
-      }
       if (!auth.currentUser?.uid) return;
       create({
         title: values.title,
         description: values.description,
-        photoUrl: uploadedPhotoUrl,
+        photoUrl: values.photoUrl,
         userId: auth.currentUser.uid,
       });
     },
     onSuccess: () => {
       form.reset();
-      setImageFile(undefined);
       setImageUrl(undefined);
       onSuccess();
     },
@@ -65,15 +79,6 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
       toast.error("Failed to create post. Please try again.");
     },
   });
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImageUrl(URL.createObjectURL(file));
-      form.setValue("photoUrl", URL.createObjectURL(file));
-    }
-  };
 
   return (
     <FormProvider {...form}>
@@ -133,10 +138,18 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
                         variant="destructive"
                         type="button"
                         size="icon"
-                        onClick={() => setImageUrl(undefined)}
+                        onClick={() => {
+                          setImageUrl(undefined);
+                          form.setValue("photoUrl", undefined);
+                        }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
+                      {uploading && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-bold">
+                          Uploading...
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="border border-dashed rounded-md p-8 text-center">
@@ -154,6 +167,7 @@ export function CreatePostForm({ form, onSuccess }: CreatePostFormProps) {
                           accept="image/*"
                           className="hidden"
                           onChange={handleImageChange}
+                          disabled={uploading}
                         />
                       </Label>
                     </div>

@@ -43,12 +43,16 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     defaultValues: { title: "", description: "", photoUrl: "" },
   });
 
+  const titleWatch = form.watch("title");
+  const descriptionWatch = form.watch("description");
+  const photoUrlWatch = form.watch("photoUrl");
+
   const previewPost: PostEntity = {
     id: "preview",
     userId: "me",
-    title: form.getValues("title") || "Post title",
-    description: form.getValues("description") || "Post description...",
-    photoUrl: form.getValues("photoUrl"),
+    title: titleWatch || "Post title",
+    description: descriptionWatch || "Post description...",
+    photoUrl: photoUrlWatch,
     likes: [],
     dislikes: [],
     commentsCount: 0,
@@ -72,11 +76,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             <TabsTrigger value={CreatePostTab.Preview}>Preview</TabsTrigger>
           </TabsList>
           <TabsContent value={CreatePostTab.Creation}>
-            {activeTab === CreatePostTab.Creation ? (
-              <CreatePostForm form={form} onSuccess={onClose} />
-            ) : (
-              <CreatePostPreview post={previewPost} />
-            )}
+            <CreatePostForm form={form} onSuccess={onClose} />
           </TabsContent>
           <TabsContent value={CreatePostTab.Preview}>
             <CreatePostPreview post={previewPost} />
