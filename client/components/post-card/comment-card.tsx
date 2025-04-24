@@ -9,8 +9,10 @@ import type { UserEntity } from "@/types/entities";
 import { QueryKey } from "@/lib/constants";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { Send, X } from "lucide-react";
+import { Check, PencilIcon, Send, TrashIcon, X } from "lucide-react";
 import { useMutateReplies } from "@/hooks/use-mutate-replies";
+import { useAuthStore } from "@/stores/auth-store";
+import { useMutateComments } from "@/hooks/use-mutate-comments";
 
 const CommentCard = ({
   comment,
@@ -22,7 +24,13 @@ const CommentCard = ({
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
 
+  const user = useAuthStore((state) => state.user);
+
   const { create } = useMutateReplies();
+  const { update, remove } = useMutateComments();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.content);
 
   const handleAddReply = () => {
     if (!replyText.trim()) return;
@@ -65,16 +73,60 @@ const CommentCard = ({
             })}
           </span>
         </div>
-        <Button
-          onClick={() => setIsReplying((prev) => !prev)}
-          variant="link"
-          size="sm"
-          className="text-muted-foreground"
-        >
-          Reply
-        </Button>
+        <div className="flex items-center gap-1">
+          {comment.userId === user?.id && (
+            <div className="flex items-center gap-1">
+              <Button
+                onClick={() => setIsEditing((prev) => !prev)}
+                variant="outline"
+                size="sm"
+              >
+                <PencilIcon />
+              </Button>
+              <Button
+                onClick={() => remove({ postId, commentId: comment.id })}
+                variant="destructive"
+                size="sm"
+              >
+                <TrashIcon />
+              </Button>
+            </div>
+          )}
+          <Button
+            onClick={() => setIsReplying((prev) => !prev)}
+            variant="link"
+            size="sm"
+            className="text-muted-foreground"
+          >
+            Reply
+          </Button>
+        </div>
       </div>
-      <p className="text-sm pl-8">{comment.content}</p>
+      {isEditing ? (
+        <div className="flex gap-2 mt-2">
+          <Textarea
+            placeholder="Edit your comment..."
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="min-h-[36px]"
+          />
+          <Button
+            className="w-6 h-6"
+            onClick={() => {
+              update({
+                postId,
+                commentId: comment.id,
+                content: editText,
+              });
+              setIsEditing(false);
+            }}
+          >
+            <Check />
+          </Button>
+        </div>
+      ) : (
+        <p className="text-sm pl-8">{comment.content}</p>
+      )}
       {isReplying && (
         <div className="flex gap-2 mt-2">
           <Textarea
@@ -102,7 +154,7 @@ const CommentCard = ({
       {comment.replies && comment.replies.length > 0 && (
         <div className="ml-10 mt-2 space-y-2 border-l border-muted-foreground/20 pl-4">
           {comment.replies.map((reply) => (
-            <CommentReplyCard key={reply.userId} reply={reply} />
+            <CommentReplyCard key={reply.id} reply={reply} />
           ))}
         </div>
       )}

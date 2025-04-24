@@ -12,6 +12,25 @@ const createReply = async (reply: {
   return res.data;
 };
 
+const updateReply = async (update: {
+  postId: string;
+  commentId: string;
+  replyId: string;
+  content: string;
+}) => {
+  const res = await axiosClient.patch(APIRoute.COMMENTS_REPLY, update);
+  return res.data;
+};
+
+const deleteReply = async (del: {
+  postId: string;
+  commentId: string;
+  replyId: string;
+}) => {
+  const res = await axiosClient.delete(APIRoute.COMMENTS_REPLY, { data: del });
+  return res.data;
+};
+
 export const useMutateReplies = () => {
   const queryClient = useQueryClient();
 
@@ -23,5 +42,21 @@ export const useMutateReplies = () => {
     },
   });
 
-  return { create };
+  const { mutateAsync: update } = useMutation({
+    mutationFn: updateReply,
+    onSuccess: () => {
+      toast.success("Reply updated");
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] });
+    },
+  });
+
+  const { mutateAsync: remove } = useMutation({
+    mutationFn: deleteReply,
+    onSuccess: () => {
+      toast.success("Reply deleted");
+      queryClient.invalidateQueries({ queryKey: [QueryKey.POSTS] });
+    },
+  });
+
+  return { create, update, remove };
 };

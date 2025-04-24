@@ -138,7 +138,10 @@ export class CommentsService {
 
     comments.splice(idx, 1);
 
-    await postRef.update({ comments });
+    await postRef.update({
+      comments,
+      commentsCount: (postData?.commentsCount || 0) - 1,
+    });
 
     return { success: true };
   }

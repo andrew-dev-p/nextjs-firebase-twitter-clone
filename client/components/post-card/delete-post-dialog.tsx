@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,14 +21,13 @@ export function DeletePostDialog({
   onClose,
   onDelete,
 }: DeletePostDialogProps) {
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
     setLoading(true);
     try {
       await onDelete();
       onClose();
-    } catch {
     } finally {
       setLoading(false);
     }
