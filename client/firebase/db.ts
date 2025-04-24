@@ -4,6 +4,7 @@ import {
   setDoc,
   getDoc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { app } from "./config";
 import { UserEntity } from "@/types/entities";
@@ -63,4 +64,10 @@ export const getCurrentUser = async () => {
     return await getUserFromDb(user.uid);
   }
   return null;
+};
+
+export const deleteAccount = async (uid?: string) => {
+  if (!auth.currentUser || !uid) throw new Error("User is not authenticated");
+  await deleteDoc(doc(db, "users", uid));
+  await auth.currentUser.delete();
 };
