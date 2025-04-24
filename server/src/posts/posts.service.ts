@@ -24,8 +24,11 @@ export class PostsService {
     return post;
   }
 
-  async findAll() {
-    const snapshot = await this.collection.get();
+  async findAll(userId?: string) {
+    const query = userId
+      ? this.collection.where('userId', '==', userId)
+      : this.collection;
+    const snapshot = await query.get();
     return snapshot.docs.map(
       (doc) =>
         ({

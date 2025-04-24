@@ -8,10 +8,16 @@ import type { PostEntity } from "@/types/entities";
 interface PostsProps {
   isLoading: boolean;
   posts: PostEntity[];
-  setIsModalOpen: (open: boolean) => void;
+  setIsModalOpen?: (open: boolean) => void;
+  isViewOnly?: boolean;
 }
 
-export const Posts: FC<PostsProps> = ({ isLoading, posts, setIsModalOpen }) => {
+export const Posts: FC<PostsProps> = ({
+  isLoading,
+  posts,
+  setIsModalOpen,
+  isViewOnly,
+}) => {
   return (
     <div className="space-y-6 flex flex-col items-center w-full">
       {isLoading ? (
@@ -21,10 +27,16 @@ export const Posts: FC<PostsProps> = ({ isLoading, posts, setIsModalOpen }) => {
       ) : posts.length === 0 ? (
         <div className="w-full rounded-lg border p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">No posts yet</h2>
-          <p className="text-muted-foreground mb-4">
-            Create your first post to get started!
-          </p>
-          <Button onClick={() => setIsModalOpen(true)}>Create Post</Button>
+          {isViewOnly && (
+            <>
+              <p className="text-muted-foreground mb-4">
+                Create your first post to get started!
+              </p>
+              <Button onClick={() => setIsModalOpen?.(true)}>
+                Create Post
+              </Button>
+            </>
+          )}
         </div>
       ) : (
         posts.map((post) => <PostCard key={post.id} post={post} />)

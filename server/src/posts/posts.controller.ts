@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -31,8 +32,8 @@ export class PostsController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll() {
-    return this.postsService.findAll();
+  async findAll(@Query('userId') userId?: string) {
+    return this.postsService.findAll(userId);
   }
 
   @Patch(':id')

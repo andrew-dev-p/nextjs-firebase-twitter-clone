@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, Lock } from "lucide-react";
+import { User, Lock, List } from "lucide-react";
 import { ProfileForm } from "./profile-form";
 import { PasswordForm } from "./password-form";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,16 @@ import { useState } from "react";
 import { deleteAccount } from "@/firebase/db";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
+import { Posts } from "../feed/posts";
+import { useQueryPosts } from "@/hooks/use-query-posts";
 
 export function ProfileSettings() {
   const router = useRouter();
 
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
   const user = useAuthStore((state) => state.user);
+  const { data: posts = [], isLoading } = useQueryPosts(user?.id);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   return (
     <>
@@ -49,6 +52,13 @@ export function ProfileSettings() {
                 <Lock className="mr-2 h-4 w-4" />
                 Password
               </TabsTrigger>
+              <TabsTrigger
+                value="posts"
+                className="w-full justify-start mb-1 data-[state=active]:bg-muted data-[state=active]:shadow-none px-3 py-2"
+              >
+                <List className="mr-2 h-4 w-4" />
+                My Posts
+              </TabsTrigger>
             </TabsList>
 
             <div className="flex-1">
@@ -74,6 +84,18 @@ export function ProfileSettings() {
                   </CardHeader>
                   <CardContent>
                     <PasswordForm />
+                  </CardContent>
+                </TabsContent>
+
+                <TabsContent value="posts" className="m-0">
+                  <CardHeader>
+                    <CardTitle>My Posts</CardTitle>
+                    <CardDescription className="mb-6">
+                      View and manage your posts.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Posts isLoading={isLoading} posts={posts} isViewOnly />
                   </CardContent>
                 </TabsContent>
               </Card>
