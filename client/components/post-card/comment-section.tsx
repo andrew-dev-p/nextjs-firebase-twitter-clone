@@ -59,7 +59,11 @@ const CommentSection = ({
           {comments.length > 0 && (
             <div className="mt-4 w-full space-y-4">
               {comments.map((comment) => (
-                <CommentCard key={comment.id} comment={comment} />
+                <CommentCard
+                  key={comment.id}
+                  comment={comment}
+                  postId={postId}
+                />
               ))}
             </div>
           )}

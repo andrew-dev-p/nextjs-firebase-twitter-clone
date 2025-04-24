@@ -4,6 +4,7 @@ export enum APIRoute {
   REACTIONS_LIKE = "/reactions/like",
   REACTIONS_DISLIKE = "/reactions/dislike",
   COMMENTS = "/comments",
+  COMMENTS_REPLY = "/comments/reply",
 }
 
 export enum QueryKey {
