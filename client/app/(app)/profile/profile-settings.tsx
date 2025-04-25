@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { Posts } from "../feed/posts";
 import { useQueryPosts } from "@/hooks/use-query-posts";
 import { SortOption } from "../feed/page";
+import { auth } from "@/firebase/auth";
 
 export function ProfileSettings() {
   const router = useRouter();
@@ -38,6 +39,10 @@ export function ProfileSettings() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const hasPasswordAuthProvider = auth.currentUser?.providerData.some(
+    (provider) => provider.providerId === "password"
+  );
+
   return (
     <>
       <div className="mx-auto max-w-4xl">
@@ -56,13 +61,15 @@ export function ProfileSettings() {
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </TabsTrigger>
-              <TabsTrigger
-                value="password"
-                className="w-full justify-start mb-1 data-[state=active]:bg-muted data-[state=active]:shadow-none px-3 py-2"
-              >
-                <Lock className="mr-2 h-4 w-4" />
-                Password
-              </TabsTrigger>
+              {hasPasswordAuthProvider && (
+                <TabsTrigger
+                  value="password"
+                  className="w-full justify-start mb-1 data-[state=active]:bg-muted data-[state=active]:shadow-none px-3 py-2"
+                >
+                  <Lock className="mr-2 h-4 w-4" />
+                  Password
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="posts"
                 className="w-full justify-start mb-1 data-[state=active]:bg-muted data-[state=active]:shadow-none px-3 py-2"
@@ -86,17 +93,19 @@ export function ProfileSettings() {
                   </CardContent>
                 </TabsContent>
 
-                <TabsContent value="password" className="m-0">
-                  <CardHeader>
-                    <CardTitle>Password</CardTitle>
-                    <CardDescription className="mb-6">
-                      Change your password.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <PasswordForm />
-                  </CardContent>
-                </TabsContent>
+                {hasPasswordAuthProvider && (
+                  <TabsContent value="password" className="m-0">
+                    <CardHeader>
+                      <CardTitle>Password</CardTitle>
+                      <CardDescription className="mb-6">
+                        Change your password.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <PasswordForm />
+                    </CardContent>
+                  </TabsContent>
+                )}
 
                 <TabsContent value="posts" className="m-0">
                   <CardHeader>
