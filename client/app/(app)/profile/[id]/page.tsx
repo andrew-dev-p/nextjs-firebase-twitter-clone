@@ -7,10 +7,9 @@ import { Mail } from "lucide-react";
 import { useParams } from "next/navigation";
 import { Posts } from "../../feed/posts";
 import { useQuery } from "@tanstack/react-query";
-import { QueryKey } from "@/lib/constants";
+import { QueryKey, SortOption } from "@/lib/constants";
 import { getUserFromDb } from "@/firebase/db";
 import { useQueryPosts } from "@/hooks/use-query-posts";
-import { SortOption } from "../../feed/page";
 import { Button } from "@/components/ui/button";
 
 export default function UserProfile() {
@@ -26,11 +25,6 @@ export default function UserProfile() {
     useQueryPosts(id, SortOption.Recent, limit);
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
-
-  const loadMore = async () => {
-    if (!hasNextPage || isFetchingNextPage) return;
-    await fetchNextPage();
-  };
 
   return (
     <div className="min-h-screen">

@@ -18,8 +18,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
 import { Posts } from "../feed/posts";
 import { useQueryPosts } from "@/hooks/use-query-posts";
-import { SortOption } from "../feed/page";
 import { auth } from "@/firebase/auth";
+import { SortOption } from "@/lib/constants";
 
 export function ProfileSettings() {
   const router = useRouter();

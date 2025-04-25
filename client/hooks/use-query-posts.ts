@@ -2,7 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import axiosClient from "../lib/axios-client";
 import { PostEntity } from "../types/entities";
 import { QueryKey, APIRoute } from "@/lib/constants";
-import { SortOption } from "@/app/(app)/feed/page";
+import { SortOption } from "@/lib/constants";
 
 const fetchPosts = async (
   userId?: string,
