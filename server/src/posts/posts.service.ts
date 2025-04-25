@@ -30,10 +30,19 @@ export class PostsService {
     sortOption?: SortOption,
     cursor?: string,
     limit = 10,
+    searchQuery?: string,
   ): Promise<{ posts: PostEntity[]; nextCursor: string | null }> {
     let query: FirebaseFirestore.Query = userId
       ? this.collection.where('userId', '==', userId)
       : this.collection;
+
+    if (searchQuery) {
+      const unicodeEndChar = '\uf8ff';
+      const endQuery = searchQuery + unicodeEndChar;
+      query = query
+        .where('title', '>=', searchQuery)
+        .where('title', '<=', endQuery);
+    }
 
     if (sortOption === SortOption.Recent)
       query = query.orderBy('createdAt', 'desc');

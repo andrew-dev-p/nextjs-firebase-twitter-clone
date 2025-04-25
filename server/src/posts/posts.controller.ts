@@ -43,8 +43,15 @@ export class PostsController {
     @Query('sortOption') sortOption?: SortOption,
     @Query('cursor') cursor?: string,
     @Query('limit') limit = 10,
+    @Query('searchQuery') searchQuery?: string,
   ) {
-    return this.postsService.findAll(userId, sortOption, cursor, +limit);
+    return this.postsService.findAll(
+      userId,
+      sortOption,
+      cursor,
+      +limit,
+      searchQuery,
+    );
   }
 
   @Patch(':id')

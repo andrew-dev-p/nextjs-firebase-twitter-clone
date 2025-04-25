@@ -8,10 +8,11 @@ const fetchPosts = async (
   userId?: string,
   sortOption?: SortOption,
   cursor?: string,
-  limit?: number
+  limit?: number,
+  searchQuery?: string
 ) => {
   const { data } = await axiosClient.get(APIRoute.POSTS, {
-    params: { userId, sortOption, cursor, limit },
+    params: { userId, sortOption, cursor, limit, searchQuery },
   });
   return data as { posts: PostEntity[]; nextCursor?: string };
 };
@@ -19,12 +20,19 @@ const fetchPosts = async (
 export const useQueryPosts = (
   userId?: string,
   sortOption: SortOption = SortOption.Recent,
-  limit = 5
+  limit = 5,
+  searchQuery?: string
 ) =>
   useInfiniteQuery<{ posts: PostEntity[]; nextCursor?: string }, Error>({
-    queryKey: [QueryKey.POSTS, userId, sortOption, limit],
+    queryKey: [QueryKey.POSTS, { userId, sortOption, limit, searchQuery }],
     queryFn: async ({ pageParam }) =>
-      fetchPosts(userId, sortOption, pageParam as string | undefined, limit),
+      fetchPosts(
+        userId,
+        sortOption,
+        pageParam as string | undefined,
+        limit,
+        searchQuery
+      ),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined,
   });

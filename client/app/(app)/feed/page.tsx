@@ -32,15 +32,18 @@ export default function FeedPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [sortOption, setSortOption] = useState<SortOption>(SortOption.Recent);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const limit = 5;
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useQueryPosts(undefined, sortOption);
+    useQueryPosts(undefined, sortOption, limit, searchQuery);
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setSearchQuery(searchInput);
   };
 
   const loadMore = async () => {
@@ -81,8 +84,8 @@ export default function FeedPage() {
           <form onSubmit={handleSearch} className="flex-1 flex gap-2">
             <Input
               placeholder="Search posts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="flex-1"
             />
             <Button type="submit" variant="secondary">
