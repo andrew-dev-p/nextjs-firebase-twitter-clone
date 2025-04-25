@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-// import { useTheme } from "next-themes";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import { LogOut, Moon, Sun, User } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function Navbar() {
-  // const { setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const router = useRouter();
 
   const user = useAuthStore((state) => state.user);
@@ -55,19 +55,13 @@ export function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => console.log("Set theme to light")}
-              >
+              <DropdownMenuItem onClick={() => setTheme("light")}>
                 Light
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => console.log("Set theme to dark")}
-              >
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
                 Dark
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => console.log("Set theme to system")}
-              >
+              <DropdownMenuItem onClick={() => setTheme("system")}>
                 System
               </DropdownMenuItem>
             </DropdownMenuContent>
