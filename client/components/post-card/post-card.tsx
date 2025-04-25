@@ -4,8 +4,7 @@ import { useState } from "react";
 import { getUserFromDb } from "@/firebase/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
-import Image from "next/image";
+import { FullscreenIcon, MessageSquare } from "lucide-react";
 import { PostEntity } from "@/types/entities";
 import { useQuery } from "@tanstack/react-query";
 import type { UserEntity } from "@/types/entities";
@@ -19,6 +18,7 @@ import { PostCardActions } from "./post-card-actions";
 import CommentSection from "./comment-section";
 import { cn } from "@/lib/utils";
 import PostCardVotes from "./post-card-votes";
+import { ImageModal } from "../ui/image-modal";
 
 interface PostCardProps {
   post: PostEntity;
@@ -53,15 +53,15 @@ export function PostCard({ post, isPreview = false }: PostCardProps) {
         onDelete={() => setDeleteDialogOpen(true)}
       />
       {post.photoUrl && (
-        <div className="w-full h-64 overflow-hidden p-2 rounded-lg">
-          <Image
-            src={post.photoUrl}
-            alt={post.title}
-            className="w-full h-full object-cover rounded-lg"
-            width={480}
-            height={270}
-            priority
-          />
+        <div className="relative w-full h-64 overflow-hidden p-2 rounded-lg">
+          <ImageModal imageUrl={post.photoUrl} alt={post.title} />
+          <Button
+            variant="outline"
+            size="icon"
+            className="pointer-events-none absolute top-3 right-1/2 translate-x-1/2"
+          >
+            <FullscreenIcon />
+          </Button>
         </div>
       )}
       <PostCardHeader
