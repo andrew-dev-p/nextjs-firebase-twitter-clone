@@ -26,6 +26,11 @@ export default function UserProfile() {
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
 
+  const loadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    await fetchNextPage();
+  };
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto p-4 pt-20">
