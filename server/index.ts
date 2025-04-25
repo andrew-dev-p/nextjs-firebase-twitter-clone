@@ -4,11 +4,20 @@ import { AppModule } from './src/app.module';
 import * as express from 'express';
 import * as functions from 'firebase-functions';
 import { Request, Response, NextFunction } from 'express';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const server = express();
 
+const allowedOrigin = process.env.CLIENT_URL || '';
+
 server.use(((req: Request, res: Response, next: NextFunction) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  const origin = req.headers.origin;
+  if (origin === allowedOrigin) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Vary', 'Origin');
   res.header('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS');
   res.header(
     'Access-Control-Allow-Headers',
