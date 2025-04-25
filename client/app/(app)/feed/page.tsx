@@ -16,17 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export enum SortOption {
-  Recent = "recent",
-  MostLikes = "most-likes",
-  MostComments = "most-comments",
-}
-
-export const sortOptionsToLabelMap = {
-  [SortOption.Recent]: "Recent",
-  [SortOption.MostLikes]: "Most Likes",
-  [SortOption.MostComments]: "Most Comments",
-};
+import { SortOption, sortOptionsToLabelMap } from "@/lib/constants";
 
 export default function FeedPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
