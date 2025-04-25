@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/lib/constants";
 import { getUserFromDb } from "@/firebase/db";
 import { useQueryPosts } from "@/hooks/use-query-posts";
+import { SortOption } from "../../feed/page";
+import { Button } from "@/components/ui/button";
 
 export default function UserProfile() {
   const { id }: { id: string } = useParams();
@@ -19,7 +21,16 @@ export default function UserProfile() {
     queryFn: () => getUserFromDb(id),
   });
 
-  const { data: posts = [], isLoading: postsLoading } = useQueryPosts(id);
+  const limit = 5;
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useQueryPosts(id, SortOption.Recent, limit);
+
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
+
+  const loadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    await fetchNextPage();
+  };
 
   return (
     <div className="min-h-screen">
@@ -53,7 +64,7 @@ export default function UserProfile() {
           </TabsList>
 
           <TabsContent value="posts">
-            <Posts isLoading={postsLoading} posts={posts} isViewOnly />
+            <Posts isLoading={isLoading} posts={posts} isViewOnly />
           </TabsContent>
 
           <TabsContent value="about">
@@ -66,6 +77,14 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <div className="flex justify-center my-4">
+          {hasNextPage && (
+            <Button onClick={loadMore} disabled={isFetchingNextPage}>
+              {isFetchingNextPage ? "Loading..." : "Load More"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/post-card/post-card";
 import type { FC } from "react";
 import type { PostEntity } from "@/types/entities";
+import PostCardSkeleton from "@/components/post-card/post-card-skeleton";
 
 interface PostsProps {
   isLoading: boolean;
@@ -21,9 +22,11 @@ export const Posts: FC<PostsProps> = ({
   return (
     <div className="space-y-6 flex flex-col items-center w-full">
       {isLoading ? (
-        <div className="w-full rounded-lg border p-8 text-center">
-          <h2 className="text-xl font-semibold mb-2">Loading...</h2>
-        </div>
+        <>
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+        </>
       ) : posts.length === 0 ? (
         <div className="w-full rounded-lg border p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">No posts yet</h2>

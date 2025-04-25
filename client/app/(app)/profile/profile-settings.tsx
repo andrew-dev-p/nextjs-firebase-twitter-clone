@@ -18,12 +18,23 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "next/navigation";
 import { Posts } from "../feed/posts";
 import { useQueryPosts } from "@/hooks/use-query-posts";
+import { SortOption } from "../feed/page";
 
 export function ProfileSettings() {
   const router = useRouter();
 
   const user = useAuthStore((state) => state.user);
-  const { data: posts = [], isLoading } = useQueryPosts(user?.id);
+
+  const limit = 5;
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useQueryPosts(user?.id, SortOption.Recent, limit);
+
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
+
+  const loadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    await fetchNextPage();
+  };
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -96,6 +107,16 @@ export function ProfileSettings() {
                   </CardHeader>
                   <CardContent>
                     <Posts isLoading={isLoading} posts={posts} isViewOnly />
+                    <div className="flex justify-center my-4">
+                      {hasNextPage && (
+                        <Button
+                          onClick={loadMore}
+                          disabled={isFetchingNextPage}
+                        >
+                          {isFetchingNextPage ? "Loading..." : "Load More"}
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </TabsContent>
               </Card>
